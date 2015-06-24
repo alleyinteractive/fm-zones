@@ -31,7 +31,12 @@ class FM_Zoninator_Demo {
 		$fm = new Zoninator_Field( array(
 			'name' => 'zone',
 		) );
-		$fm->add_meta_box( __( 'Zone Clone', 'fmz' ), array( 'post' ) );
+		$fm->add_meta_box( __( 'FM Zoninator', 'fmz' ), array( 'post' ) );
+
+		$fm = new Zoninator_Field( array(
+			'name' => 'zone_2',
+		) );
+		$fm->add_meta_box( __( 'Can it handle two?', 'fmz' ), array( 'post' ) );
 	}
 }
 
