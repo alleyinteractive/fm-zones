@@ -29,5 +29,4 @@ define( 'FMZ_VERSION', '0.1.0' );
 
 add_action( 'after_setup_theme', function() {
 	require_once( __DIR__ . '/php/class-zoninator-field.php' );
-	require_once( __DIR__ . '/php/class-fm-zoninator-demo.php' );
 } );
