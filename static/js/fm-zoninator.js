@@ -24,7 +24,7 @@
 			post.i = $( '.zone-posts-list', $container ).children().length + 1;
 			var $el = $( tpl( post ) ).hide();
 			$( '.zone-posts-list', $container ).append( $el.fadeIn() );
-			remove_from_recents( post.id );
+			obj.remove_from_recents( post.id );
 		}
 
 		obj.remove_from_recents = function( id ) {
@@ -61,6 +61,11 @@
 			, connectWith: '.fm-zone-posts-connected .zone-posts-list'
 			, placeholder: 'ui-state-highlight'
 			, forcePlaceholderSize: true
+		} );
+
+		$container.on( 'click', '.delete', function( e ) {
+			e.preventDefault();
+			$( this ).closest( '.zone-post' ).fadeOut( 'normal', function() { $( this ).remove(); } );
 		} );
 
 		$search_field
