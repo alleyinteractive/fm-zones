@@ -1,8 +1,8 @@
 <?php
 
 /*
-	Plugin Name: FM Zoninator Field
-	Plugin URI: https://github.com/alleyinteractive/fm-zoninator
+	Plugin Name: Fieldmanager Zone Field
+	Plugin URI: https://github.com/alleyinteractive/fm-zones
 	Description: Fieldmanager field which acts as a Zoninator clone.
 	Version: 0.1.0
 	Author: Alley Interactive
@@ -28,5 +28,5 @@ define( 'FMZ_URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
 define( 'FMZ_VERSION', '0.1.0' );
 
 add_action( 'after_setup_theme', function() {
-	require_once( __DIR__ . '/php/class-zoninator-field.php' );
+	require_once( __DIR__ . '/php/class-fieldmanager-zone-field.php' );
 } );

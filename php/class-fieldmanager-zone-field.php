@@ -5,7 +5,7 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 	/**
 	 * Zoninator Act-Alike Fieldmanager Field
 	 */
-	class Zoninator_Field extends Fieldmanager_Field {
+	class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 		public $query_args = array();
 
@@ -25,9 +25,9 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 		}
 
 		public function assets() {
-			wp_enqueue_style( 'fm-zoninator-jquery-ui', FMZ_URL . '/static/jquery-ui/smoothness/jquery-ui.theme.css', false, FMZ_VERSION, 'all' );
-			wp_enqueue_style( 'fm-zoninator-styles', FMZ_URL . '/static/css/fm-zoninator.css', false, FMZ_VERSION, 'all' );
-			wp_enqueue_script( 'fm-zoninator-script', FMZ_URL . '/static/js/fm-zoninator.js', array( 'jquery', 'underscore', 'jquery-ui-sortable', 'jquery-ui-autocomplete' ), FMZ_VERSION, true );
+			wp_enqueue_style( 'fm-zone-jquery-ui', FMZ_URL . '/static/jquery-ui/smoothness/jquery-ui.theme.css', false, FMZ_VERSION, 'all' );
+			wp_enqueue_style( 'fm-zone-styles', FMZ_URL . '/static/css/fm-zone.css', false, FMZ_VERSION, 'all' );
+			wp_enqueue_script( 'fm-zone-script', FMZ_URL . '/static/js/fm-zone.js', array( 'jquery', 'underscore', 'jquery-ui-sortable', 'jquery-ui-autocomplete' ), FMZ_VERSION, true );
 		}
 
 		public function form_element( $value = null ) {
@@ -66,7 +66,7 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 		 *
 		 * @param  array  $except Post IDs to exclude, because they're already
 		 *                        in the zone.
-		 * @return array {@see Zoninator_Field::format_posts()}
+		 * @return array {@see Fieldmanager_Zone_Field::format_posts()}
 		 */
 		public function get_recent_posts( $except = array() ) {
 			return $this->get_posts( array(
@@ -83,7 +83,7 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 		 *       option.
 		 *
 		 * @param  array  $args WP_Query args
-		 * @return array {@see Zoninator_Field::format_posts()}
+		 * @return array {@see Fieldmanager_Zone_Field::format_posts()}
 		 */
 		public function get_posts( $args = array() ) {
 			$args = array_merge(
@@ -149,7 +149,7 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 			check_ajax_referer( 'fm_search_nonce', '_nonce' );
 
 			if ( empty( $_POST['term'] ) ) {
-				wp_send_json_error( __( 'Search term is empty!', 'fm-zoninator' ) );
+				wp_send_json_error( __( 'Search term is empty!', 'fm-zones' ) );
 			}
 
 			$args = array(
