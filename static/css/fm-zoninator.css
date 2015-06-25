@@ -28,6 +28,7 @@
 }
 .fm-zone-posts-wrapper .zone-posts-list {
   margin: 10px 0;
+  min-height: 10px;
 }
 .fm-zone-posts-wrapper .zone-posts-list .ui-state-highlight {
   margin-bottom: 5px;

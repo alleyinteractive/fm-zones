@@ -16,6 +16,7 @@
 			var zone = receiving_container.data( 'fm_zonify' );
 			if ( zone ) {
 				zone.reorder_posts();
+				zone.remove_from_recents( $( ui.item ).data( 'post-id' ) );
 			}
 		}
 
@@ -26,7 +27,7 @@
 			remove_from_recents( post.id );
 		}
 
-		var remove_from_recents = function( id ) {
+		obj.remove_from_recents = function( id ) {
 			$( '.zone-post-latest option[data-post-id="' + id + '"]', $container ).remove();
 		}
 
