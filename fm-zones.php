@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Plugin Name: Fieldmanager Zone Field
+	Plugin Name: Fieldmanager Zones
 	Plugin URI: https://github.com/alleyinteractive/fm-zones
 	Description: Fieldmanager field which acts as a Zoninator clone.
 	Version: 0.1.0
