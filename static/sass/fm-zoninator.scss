@@ -34,7 +34,9 @@
 		min-height: 10px;
 		.ui-state-highlight {
 			margin-bottom: 5px;
-			@include border-radius(4px);
+			border: 3px dashed #bbb;
+			background: none;
+			color: #bbb;
 		}
 		&.ui-sortable .zone-post {
 			cursor: move;
