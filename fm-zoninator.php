@@ -31,9 +31,3 @@ add_action( 'after_setup_theme', function() {
 	require_once( __DIR__ . '/php/class-zoninator-field.php' );
 	require_once( __DIR__ . '/php/class-fm-zoninator-demo.php' );
 } );
-
-add_action( 'admin_enqueue_scripts', function() {
-	wp_enqueue_style( 'fm-zoninator-jquery-ui', FMZ_URL . '/static/jquery-ui/smoothness/jquery-ui-zoninator.css', false, FMZ_VERSION, 'all' );
-	wp_enqueue_style( 'fm-zoninator-styles', FMZ_URL . '/static/css/fm-zoninator.css', false, FMZ_VERSION, 'all' );
-	wp_enqueue_script( 'fm-zoninator-script', FMZ_URL . '/static/js/fm-zoninator.js', array( 'jquery', 'underscore' ), FMZ_VERSION, true );
-}, 20 );
