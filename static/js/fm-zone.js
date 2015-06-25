@@ -5,7 +5,12 @@
 		  , obj = this
 		  , tpl = _.template( $( '.fmz-post-template', $container ).html() )
 		  , $search_field = $( '.zone-post-search', $container )
+		  , field_name = $( 'input:hidden.zone-name', $container ).attr( 'name' ) + '[]';
 		;
+
+		if ( ! posts ) {
+			posts = [];
+		}
 
 		var after_sort = function( event, ui ) {
 			// Reorder the sending container
@@ -23,6 +28,7 @@
 		var add_post = function( post ) {
 			post.i = $( '.zone-posts-list', $container ).children().length + 1;
 			var $el = $( tpl( post ) ).hide();
+			$( 'input:hidden', $el ).attr( 'name', field_name );
 			$( '.zone-posts-list', $container ).append( $el.fadeIn() );
 			obj.remove_from_recents( post.id );
 		}
@@ -32,7 +38,6 @@
 		}
 
 		obj.reorder_posts = function() {
-			var field_name = $container.data( 'name' );
 			$( '.zone-post', $container ).each( function( index ) {
 				$( '.zone-post-position', this ).text( index + 1 );
 				$( 'input:hidden', this ).attr( 'name', field_name );
@@ -140,13 +145,16 @@
 			var fm_zone = new FM_Zone( this, posts );
 
 			// Store plugin object in this element's data
-			$element.data( 'fm_zonify', fm_zone );
+			$element
+				.data( 'fm_zonify', fm_zone )
+				.addClass( 'zonified' )
+			;
 		} );
 	};
 
 
 	$( document ).ready( function() {
-		$( '.fm-zone-posts-wrapper' ).each( function() {
+		var zonifier = function() {
 			var posts = [];
 			if ( $( this ).data( 'current' ) ) {
 				try {
@@ -157,6 +165,12 @@
 			}
 
 			$( this ).fm_zonify( posts );
+		}
+
+		$( '.fm-zone-posts-wrapper:visible' ).each( zonifier );
+
+		$( document ).on( 'fm_collapsible_toggle fm_added_element fm_displayif_toggle fm_activate_tab', function() {
+			$( '.fm-zone-posts-wrapper:visible:not(.zonified)' ).each( zonifier );
 		} );
 	} );
 

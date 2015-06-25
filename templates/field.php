@@ -6,11 +6,12 @@ if ( is_array( $value ) ) {
 }
 ?>
 
-<div class="fm-zone-posts-wrapper<?php $this->maybe_connect() ?>" data-name="<?php echo esc_attr( $this->get_form_name() ); ?>[]" data-current="<?php echo esc_attr( $this->get_current_posts_json( $current_ids ) ) ?>">
+<div class="fm-zone-posts-wrapper<?php $this->maybe_connect() ?>" data-current="<?php echo esc_attr( $this->get_current_posts_json( $current_ids ) ) ?>">
+	<input type="hidden" class="fm-element zone-name" name="<?php echo esc_attr( $this->get_form_name() ); ?>" value="" />
 
 	<div class="zone-search-wrapper">
 		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_recent"><?php esc_html_e( 'Add Recent Content', 'fm-zones' ); ?></label><br>
-		<select name="search-posts" class="zone-post-latest" id="<?php echo esc_attr( $this->get_element_id() ); ?>_recent">
+		<select class="zone-post-latest" id="<?php echo esc_attr( $this->get_element_id() ); ?>_recent">
 			<option value=""><?php esc_html_e( 'Choose a post', 'fm-zones' ); ?></option>
 			<?php foreach ( $this->get_recent_posts( $current_ids ) as $post ) : ?>
 				<option value="<?php echo esc_attr( json_encode( $post ) ) ?>" data-post-id="<?php echo intval( $post['id'] ) ?>"><?php echo esc_html( $post['title'] ) ?></option>
@@ -20,7 +21,7 @@ if ( is_array( $value ) ) {
 
 	<div class="zone-search-wrapper">
 		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_search"><?php esc_html_e( 'Search for content', 'fm-zones' );?></label>
-		<input type="text" class="zone-post-search" id="<?php echo esc_attr( $this->get_element_id() ); ?>_search" name="search" <?php echo $this->get_element_autocomplete_attributes(); ?> />
+		<input type="text" class="zone-post-search" id="<?php echo esc_attr( $this->get_element_id() ); ?>_search" <?php echo $this->get_element_autocomplete_attributes(); ?> />
 		<p class="description"><?php esc_html_e( 'Enter a term or phrase in the text box above to search for and add content to this zone.', 'fm-zones' ); ?></p>
 	</div>
 
@@ -43,7 +44,7 @@ if ( is_array( $value ) ) {
 					<td class="zone-post-col zone-post-post_type"><%= post_type %></td>
 				</tr>
 			</table>
-			<input type="hidden" name="<?php echo esc_attr( $this->get_form_name() ); ?>[]" value="<%= id %>" />
+			<input type="hidden" class="fm-element" name="<?php echo esc_attr( $this->get_form_name( '[]' ) ); ?>" value="<%= id %>" />
 		</div>
 	</script>
 

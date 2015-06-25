@@ -7,6 +7,8 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 	 */
 	class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
+		private $field_id;
+
 		public $query_args = array();
 
 		public $autocomplete_attributes = array();
@@ -16,12 +18,12 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 		public function __construct( $label = '', $options = array() ) {
 			$this->template = FMZ_PATH . '/templates/field.php';
 			$this->multiple = true;
+			$this->sanitize = 'absint';
 
 			parent::__construct( $label, $options );
 
 			add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 			add_action( 'wp_ajax_' . $this->get_ajax_action(), array( $this, 'ajax_request' ) );
-			// die( 'wp_ajax_' . $this->get_ajax_action() );
 		}
 
 		public function assets() {
@@ -142,7 +144,20 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 		}
 
 		public function get_ajax_action() {
-			return $this->get_element_id() . '_search_ajax';
+			return $this->get_field_id() . '_search_ajax';
+		}
+
+		public function get_field_id() {
+			if ( ! $this->field_id ) {
+				$el = $this;
+				$id_slugs = array();
+				while ( $el ) {
+					array_unshift( $id_slugs, $el->name );
+					$el = $el->parent;
+				}
+				$this->field_id = 'fm-' . implode( '-', $id_slugs );
+			}
+			return $this->field_id;
 		}
 
 		public function ajax_request() {
@@ -168,6 +183,22 @@ if ( class_exists( 'Fieldmanager_Field' ) ) {
 				echo ' fm-zone-posts-connected';
 			}
 		}
+
+		/**
+		 * Presave function, which handles sanitization and validation
+		 *
+		 * @param int|array $values This will either be a post ID or array of
+		 *                          post IDs.
+		 * @return int|array Sanitized values.
+		 */
+		public function presave( $values, $current_values = array() ) {
+			if ( is_array( $values ) ) {
+				return array_map( $this->sanitize, $values );
+			} else {
+				return call_user_func( $this->sanitize, $values );
+			}
+		}
+
 	}
 
 } // if Fieldmanager_Field exxists
