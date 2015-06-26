@@ -1,6 +1,6 @@
 <?php
 
-if ( class_exists( 'Fieldmanager_Field' ) ) {
+if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_Field' ) ) {
 
 	/**
 	 * Zoninator Act-Alike Fieldmanager Field
