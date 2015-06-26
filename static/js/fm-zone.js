@@ -38,7 +38,7 @@
 		}
 
 		obj.reorder_posts = function() {
-			$( '.zone-post', $container ).each( function( index ) {
+			$( '.zone-post:visible', $container ).each( function( index ) {
 				$( '.zone-post-position', this ).text( index + 1 );
 				$( 'input:hidden', this ).attr( 'name', field_name );
 			} );
@@ -70,7 +70,10 @@
 
 		$container.on( 'click', '.delete', function( e ) {
 			e.preventDefault();
-			$( this ).closest( '.zone-post' ).fadeOut( 'normal', function() { $( this ).remove(); } );
+			$( this ).closest( '.zone-post' ).fadeOut( 'normal', function() {
+				$( this ).remove();
+				obj.reorder_posts();
+			} );
 		} );
 
 		$search_field
