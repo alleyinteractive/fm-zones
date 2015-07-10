@@ -28,9 +28,11 @@
 		var add_post = function( post ) {
 			post.i = $( '.zone-posts-list', $container ).children().length + 1;
 			var $el = $( tpl( post ) ).hide();
+			$container.trigger( 'fm-zone-pre-add-post', $el, post );
 			$( 'input:hidden', $el ).attr( 'name', field_name );
 			$( '.zone-posts-list', $container ).append( $el.fadeIn() );
 			obj.remove_from_recents( post.id );
+			$container.trigger( 'fm-zone-after-add-post', $el, post );
 		}
 
 		obj.remove_from_recents = function( id ) {
@@ -38,10 +40,12 @@
 		}
 
 		obj.reorder_posts = function() {
+			$container.trigger( 'fm-zone-reorder-start' );
 			$( '.zone-post:visible', $container ).each( function( index ) {
 				$( '.zone-post-position', this ).text( index + 1 );
 				$( 'input:hidden', this ).attr( 'name', field_name );
 			} );
+			$container.trigger( 'fm-zone-reorder-stop' );
 		}
 
 		obj.get_current_ids = function() {
