@@ -28,11 +28,11 @@
 		var add_post = function( post ) {
 			post.i = $( '.zone-posts-list', $container ).children().length + 1;
 			var $el = $( tpl( post ) ).hide();
-			$container.trigger( 'fm-zone-pre-add-post', $el, post );
+			$container.trigger( 'fm-zone-pre-add-post', [$el, post] );
 			$( 'input:hidden', $el ).attr( 'name', field_name );
 			$( '.zone-posts-list', $container ).append( $el.fadeIn() );
 			obj.remove_from_recents( post.id );
-			$container.trigger( 'fm-zone-after-add-post', $el, post );
+			$container.trigger( 'fm-zone-after-add-post', [$el, post] );
 		}
 
 		obj.remove_from_recents = function( id ) {
