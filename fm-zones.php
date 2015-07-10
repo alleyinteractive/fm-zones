@@ -33,7 +33,7 @@
 
 define( 'FMZ_PATH', dirname( __FILE__ ) );
 define( 'FMZ_URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
-define( 'FMZ_VERSION', '0.1.2' );
+define( 'FMZ_VERSION', '0.1.3' );
 
 add_action( 'after_setup_theme', function() {
 	require_once( __DIR__ . '/php/class-fieldmanager-zone-field.php' );

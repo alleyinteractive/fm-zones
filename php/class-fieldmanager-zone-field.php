@@ -15,6 +15,8 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 
 		public $accept_from_other_zones = false;
 
+		public $ajax_args = array();
+
 		public function __construct( $label = '', $options = array() ) {
 			$this->template = FMZ_PATH . '/templates/field.php';
 			$this->multiple = true;
@@ -38,6 +40,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 			$this->autocomplete_attributes['data-subcontext'] = $subcontext;
 			$this->autocomplete_attributes['data-action'] = $this->get_ajax_action( $this->name );
 			$this->autocomplete_attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
+			$this->autocomplete_attributes['data-args'] = json_encode( $this->ajax_args );
 
 			return parent::form_element( $value );
 		}
