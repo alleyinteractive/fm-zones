@@ -19,7 +19,7 @@
 			// Reorder the receiving container
 			receiving_container = $( ui.item ).closest( '.fm-zone-posts-wrapper' );
 			var zone = receiving_container.data( 'fm_zonify' );
-			if ( zone ) {
+			if ( zone && zone !== obj ) {
 				zone.reorder_posts();
 				zone.remove_from_recents( $( ui.item ).data( 'post-id' ) );
 			}
