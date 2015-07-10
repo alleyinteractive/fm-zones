@@ -91,8 +91,9 @@
 					// Append more request vars
 					request.action = $search_field.data( 'action' );
 					request._nonce = $search_field.data( 'nonce' );
-					request.fm_context = $search_field.data( 'context' ),
-					request.fm_subcontext = $search_field.data( 'subcontext' ),
+					request.fm_context = $search_field.data( 'context' );
+					request.fm_subcontext = $search_field.data( 'subcontext' );
+					request.fm_args = $search_field.data( 'args' );
 					request.exclude = obj.get_current_ids();
 
 
