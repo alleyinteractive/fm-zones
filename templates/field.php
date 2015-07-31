@@ -26,25 +26,25 @@ if ( is_array( $value ) ) {
 	</div>
 
 	<script type="text/template" class="fmz-post-template">
-		<div id="zone-post-<%= id %>" class="zone-post" data-post-id="<%= id %>">
+		<div id="zone-post-<%= id %>" class="zone-post" data-post-id="<%- id %>">
 			<table>
 				<tr>
-					<td class="zone-post-col zone-post-position"><%= i %></td>
+					<td class="zone-post-col zone-post-position"><%- i %></td>
 					<td class="zone-post-col zone-post-thumbnail">
 						<%= thumb %>
 					</td>
 					<td class="zone-post-col zone-post-info">
-						<%= title %> <span class="zone-post-status"><%= post_status %></span>
+						<%- title %> <span class="zone-post-status"><%- post_status %></span>
 						<div class="row-actions">
-							<a href="<?php echo esc_url( admin_url( 'post.php?action=edit&post=' ) ) ?><%= id %>" class="edit" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'fm-zones' ); ?>"><?php esc_html_e( 'Edit', 'fm-zones' ); ?></a>
+							<a href="<?php echo esc_url( admin_url( 'post.php?action=edit&post=' ) ) ?><%- id %>" class="edit" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'fm-zones' ); ?>"><?php esc_html_e( 'Edit', 'fm-zones' ); ?></a>
 							| <a href="#" class="delete" title="<?php esc_attr_e( 'Remove this item from the zone', 'fm-zones' ); ?>"><?php esc_html_e( 'Remove', 'fm-zones' ); ?></a>
-							| <a href="<%= link %>" class="view" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'fm-zones' ); ?>"><?php esc_html_e( 'View', 'fm-zones' ); ?></a>
+							| <a href="<%- link %>" class="view" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'fm-zones' ); ?>"><?php esc_html_e( 'View', 'fm-zones' ); ?></a>
 						</div>
 					</td>
-					<td class="zone-post-col zone-post-post_type"><%= post_type %></td>
+					<td class="zone-post-col zone-post-post_type"><%- post_type %></td>
 				</tr>
 			</table>
-			<input type="hidden" class="fm-element" name="<?php echo esc_attr( $this->get_form_name( '[]' ) ); ?>" value="<%= id %>" />
+			<input type="hidden" class="fm-element" name="<?php echo esc_attr( $this->get_form_name( '[]' ) ); ?>" value="<%- id %>" />
 		</div>
 	</script>
 
