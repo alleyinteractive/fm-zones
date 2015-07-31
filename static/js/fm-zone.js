@@ -8,6 +8,18 @@
 		  , field_name = $( 'input:hidden.zone-name', $container ).attr( 'name' ) + '[]';
 		;
 
+		var item_tpl = _.template(
+			'<a>'
+				+ '<span class="image"><%= thumb %></span>'
+				+ '<span class="details">'
+					+ '<span class="title"><%= title %></span>'
+					+ '<span class="type"><%= post_type %></span>'
+					+ '<span class="date"><%= date %></span>'
+					+ '<span class="status"><%= post_status %></span>'
+				+ '</span>'
+			+ '</a>'
+		);
+
 		if ( ! posts ) {
 			posts = [];
 		}
@@ -115,18 +127,9 @@
 		/* Manipulate the results */
 		var autocomplete = $search_field.data( 'autocomplete' ) || $search_field.data( 'ui-autocomplete' );
 		autocomplete._renderItem = function( ul, item ) {
-			var content = '<a>'
-				+ '<span class="image">' + item.thumb + '</span>'
-				+ '<span class="details">'
-					+ '<span class="title">' + item.title + '</span>'
-					+ '<span class="type">' + item.post_type + '</span>'
-					+ '<span class="date">' + item.date + '</span>'
-					+ '<span class="status">' + item.post_status + '</span>'
-				+ '</span>'
-				+ '</a>';
 			return $( '<li></li>' )
 				.data( 'item.autocomplete', item )
-				.append( content )
+				.append( item_tpl( item ) )
 				.appendTo( ul )
 				;
 		}
