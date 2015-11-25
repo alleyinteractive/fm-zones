@@ -208,9 +208,23 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 		 */
 		public function presave( $values, $current_values = array() ) {
 			if ( is_array( $values ) ) {
+				// Fieldmanager_Field doesn't like it when $values is an array,
+				// so we need to replicate what it does here.
+				foreach ( $values as $value ) {
+					foreach ( $this->validate as $func ) {
+						if ( ! call_user_func( $func, $value ) ) {
+							$this->_failed_validation( sprintf(
+								__( 'Input "%1$s" is not valid for field "%2$s" ', 'fm-zones' ),
+								(string) $value,
+								$this->label
+							) );
+						}
+					}
+				}
+
 				return array_map( $this->sanitize, $values );
 			} else {
-				return call_user_func( $this->sanitize, $values );
+				return parent::presave( $values, $current_values );
 			}
 		}
 
@@ -219,17 +233,29 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 		 *
 		 * Here, we're enforcing $post_limit.
 		 *
-		 * @param  array $values Field values being saved.
+		 * @param  array $values Field values being saved. This will either be
+		 *                       an array of ints if this is a singular field,
+		 *                       or an array of array of ints if $limit != 1.
 		 * @param  array $current_values Field's previous values.
 		 * @return array Altered values.
 		 */
 		public function presave_alter_values( $values, $current_values = array() ) {
-			// Ensure there's no more than $post_limit entries, if set
-			if ( is_array( $values ) && $this->post_limit ) {
+			if ( ! empty( $values[0] ) && is_array( $values[0] ) ) {
+				// If this is an array of arrays, limit each individually
+				$values = array_filter( $values );
+				foreach ( $values as $i => $value ) {
+					if ( ! is_array( $value ) ) {
+						unset( $values[ $i ] );
+					} else {
+						$values[ $i ] = array_slice( $value, 0, $this->post_limit );
+					}
+				}
+			} elseif ( is_array( $values ) && $this->post_limit > 0 ) {
+				// this is an array of ints, so we can enforce the limit on it
 				$values = array_slice( $values, 0, $this->post_limit );
 			}
 
-			return $values;
+			return parent::presave_alter_values( $values, $current_values );
 		}
 	}
 

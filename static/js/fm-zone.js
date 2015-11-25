@@ -38,7 +38,8 @@
 		}
 
 		var add_post = function( post ) {
-			if ( $( '.zone-posts-list', $container ).children().length >= $container.data( 'limit' ) - 0 ) {
+			var limit = $container.data( 'limit' ) - 0;
+			if ( limit > 0 && $( '.zone-posts-list', $container ).children().length >= limit ) {
 				obj.error_message( fm_zone_l10n.too_many_items );
 				return;
 			}
@@ -176,6 +177,10 @@
 
 	$( document ).ready( function() {
 		var zonifier = function() {
+			if ( $( this ).closest( '.fmjs-proto' ).length ) {
+				return;
+			}
+
 			var posts = [];
 			if ( $( this ).data( 'current' ) ) {
 				try {
@@ -188,7 +193,7 @@
 			$( this ).fm_zonify( posts );
 		}
 
-		$( '.fm-zone-posts-wrapper:visible' ).each( zonifier );
+		$( '.fm-zone-posts-wrapper' ).each( zonifier );
 
 		$( document ).on( 'fm_collapsible_toggle fm_added_element fm_displayif_toggle fm_activate_tab', function() {
 			$( '.fm-zone-posts-wrapper:visible:not(.zonified)' ).each( zonifier );
