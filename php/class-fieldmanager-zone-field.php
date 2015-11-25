@@ -17,6 +17,8 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 
 		public $ajax_args = array();
 
+		public $post_limit = 0;
+
 		public function __construct( $label = '', $options = array() ) {
 			$this->template = FMZ_PATH . '/templates/field.php';
 			$this->multiple = true;
@@ -202,6 +204,23 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 			}
 		}
 
+		/**
+		 * Alter values before they go through the sanitize & save routine.
+		 *
+		 * Here, we're enforcing $post_limit.
+		 *
+		 * @param  array $values Field values being saved.
+		 * @param  array $current_values Field's previous values.
+		 * @return array Altered values.
+		 */
+		public function presave_alter_values( $values, $current_values = array() ) {
+			// Ensure there's no more than $post_limit entries, if set
+			if ( is_array( $values ) && $this->post_limit ) {
+				$values = array_slice( $values, 0, $this->post_limit );
+			}
+
+			return $values;
+		}
 	}
 
 } // if Fieldmanager_Field exxists
