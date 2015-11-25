@@ -19,6 +19,8 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 
 		public $post_limit = 0;
 
+		public static $assets_enqueued = false;
+
 		public function __construct( $label = '', $options = array() ) {
 			$this->template = FMZ_PATH . '/templates/field.php';
 			$this->multiple = true;
@@ -26,14 +28,22 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 
 			parent::__construct( $label, $options );
 
-			add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 			add_action( 'wp_ajax_' . $this->get_ajax_action(), array( $this, 'ajax_request' ) );
+
+			// Only enqueue assets once per request
+			if ( ! self::$assets_enqueued ) {
+				self::$assets_enqueued = true;
+				add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
+			}
 		}
 
 		public function assets() {
 			wp_enqueue_style( 'fm-zone-jquery-ui', FMZ_URL . '/static/jquery-ui/smoothness/jquery-ui.theme.css', false, FMZ_VERSION, 'all' );
 			wp_enqueue_style( 'fm-zone-styles', FMZ_URL . '/static/css/fm-zone.css', false, FMZ_VERSION, 'all' );
 			wp_enqueue_script( 'fm-zone-script', FMZ_URL . '/static/js/fm-zone.js', array( 'jquery', 'underscore', 'jquery-ui-sortable', 'jquery-ui-autocomplete' ), FMZ_VERSION, true );
+			wp_localize_script( 'fm-zone-script', 'fm_zone_l10n', array(
+				'too_many_items' => __( "You've reached the post limit on this field. To add more posts, you must remove one or more.", 'fm-zones' ),
+			) );
 		}
 
 		public function form_element( $value = null ) {

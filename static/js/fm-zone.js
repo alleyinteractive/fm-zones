@@ -38,11 +38,25 @@
 		}
 
 		var add_post = function( post ) {
+			if ( $( '.zone-posts-list', $container ).children().length >= $container.data( 'limit' ) - 0 ) {
+				obj.error_message( fm_zone_l10n.too_many_items );
+				return;
+			}
 			post.i = $( '.zone-posts-list', $container ).children().length + 1;
 			var $el = $( tpl( post ) ).hide();
 			$( 'input:hidden', $el ).attr( 'name', field_name );
 			$( '.zone-posts-list', $container ).append( $el.fadeIn() );
 			obj.remove_from_recents( post.id );
+		}
+
+		obj.error_message = function( msg ) {
+			var $div = $( '.fmz-notice', $container );
+			if ( ! $div.length ) {
+				$div = $( '<div class="fmz-notice" />' ).hide();
+				$( '.zone-posts-list', $container ).before( $div );
+			}
+			$div.text( msg ).fadeIn();
+			setTimeout( function() { $div.fadeOut(); }, 10000 );
 		}
 
 		obj.remove_from_recents = function( id ) {
