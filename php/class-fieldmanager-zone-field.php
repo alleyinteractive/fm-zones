@@ -240,19 +240,21 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 		 * @return array Altered values.
 		 */
 		public function presave_alter_values( $values, $current_values = array() ) {
-			if ( ! empty( $values[0] ) && is_array( $values[0] ) ) {
-				// If this is an array of arrays, limit each individually
-				$values = array_filter( $values );
-				foreach ( $values as $i => $value ) {
-					if ( ! is_array( $value ) ) {
-						unset( $values[ $i ] );
-					} else {
-						$values[ $i ] = array_slice( $value, 0, $this->post_limit );
+			if ( $this->post_limit > 0 ) {
+				if ( ! empty( $values[0] ) && is_array( $values[0] ) ) {
+					// If this is an array of arrays, limit each individually
+					$values = array_filter( $values );
+					foreach ( $values as $i => $value ) {
+						if ( ! is_array( $value ) ) {
+							unset( $values[ $i ] );
+						} else {
+							$values[ $i ] = array_slice( $value, 0, $this->post_limit );
+						}
 					}
+				} elseif ( is_array( $values ) ) {
+					// this is an array of ints, so we can enforce the limit on it
+					$values = array_slice( $values, 0, $this->post_limit );
 				}
-			} elseif ( is_array( $values ) && $this->post_limit > 0 ) {
-				// this is an array of ints, so we can enforce the limit on it
-				$values = array_slice( $values, 0, $this->post_limit );
 			}
 
 			return parent::presave_alter_values( $values, $current_values );
