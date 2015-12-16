@@ -12,7 +12,7 @@
 	.zone-posts-col {
 		background: #fff;
 		border: 1px solid #ccc;
-		-moz-border-radius: 4px; -wekbit-border-radius: 4px; -ms-border-radius: 4px; border-radius: 4px;
+		@include border-radius(4px);
 
 		float: right;
 		padding: 10px;
@@ -49,7 +49,7 @@
 		overflow: hidden;
 
 		border: 1px dotted #eee;
-		-moz-border-radius: 4px; -wekbit-border-radius: 4px; -ms-border-radius: 4px; border-radius: 4px;
+		@include border-radius(4px);
 
 		background: #f5f5f5;
 		table {
@@ -186,5 +186,12 @@
 	}
 	.zone-toggle-advanced-search {
 		cursor: pointer;
+	}
+	.fmz-notice {
+		@include border-radius(4px);
+		color: #dd3d36;
+		background: #fae2e1;
+		padding: 12px;
+		margin-top: 10px;
 	}
 }

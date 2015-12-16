@@ -38,11 +38,26 @@
 		}
 
 		var add_post = function( post ) {
+			var limit = $container.data( 'limit' ) - 0;
+			if ( limit > 0 && $( '.zone-posts-list', $container ).children().length >= limit ) {
+				obj.error_message( fm_zone_l10n.too_many_items );
+				return;
+			}
 			post.i = $( '.zone-posts-list', $container ).children().length + 1;
 			var $el = $( tpl( post ) ).hide();
 			$( 'input:hidden', $el ).attr( 'name', field_name );
 			$( '.zone-posts-list', $container ).append( $el.fadeIn() );
 			obj.remove_from_recents( post.id );
+		}
+
+		obj.error_message = function( msg ) {
+			var $div = $( '.fmz-notice', $container );
+			if ( ! $div.length ) {
+				$div = $( '<div class="fmz-notice" />' ).hide();
+				$( '.zone-posts-list', $container ).before( $div );
+			}
+			$div.text( msg ).fadeIn();
+			setTimeout( function() { $div.fadeOut(); }, 10000 );
 		}
 
 		obj.remove_from_recents = function( id ) {
@@ -162,6 +177,10 @@
 
 	$( document ).ready( function() {
 		var zonifier = function() {
+			if ( $( this ).closest( '.fmjs-proto' ).length ) {
+				return;
+			}
+
 			var posts = [];
 			if ( $( this ).data( 'current' ) ) {
 				try {
@@ -174,7 +193,7 @@
 			$( this ).fm_zonify( posts );
 		}
 
-		$( '.fm-zone-posts-wrapper:visible' ).each( zonifier );
+		$( '.fm-zone-posts-wrapper' ).each( zonifier );
 
 		$( document ).on( 'fm_collapsible_toggle fm_added_element fm_displayif_toggle fm_activate_tab', function() {
 			$( '.fm-zone-posts-wrapper:visible:not(.zonified)' ).each( zonifier );

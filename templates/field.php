@@ -6,7 +6,7 @@ if ( is_array( $value ) ) {
 }
 ?>
 
-<div class="fm-zone-posts-wrapper<?php $this->maybe_connect() ?>" data-current="<?php echo esc_attr( $this->get_current_posts_json( $current_ids ) ) ?>">
+<div class="fm-zone-posts-wrapper<?php $this->maybe_connect() ?>" data-current="<?php echo esc_attr( $this->get_current_posts_json( $current_ids ) ) ?>" data-limit="<?php echo absint( $this->post_limit ) ?>">
 	<input type="hidden" class="fm-element zone-name" name="<?php echo esc_attr( $this->get_form_name() ); ?>" value="" />
 
 	<div class="zone-search-wrapper">
