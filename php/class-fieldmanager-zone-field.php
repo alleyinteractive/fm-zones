@@ -152,6 +152,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 						'post_type' => 'any',
 						'orderby' => 'post__in',
 						'order' => 'asc',
+						'posts_per_page' => 100, // arbitrarily high limit
 					) ),
 					'json'
 				);
