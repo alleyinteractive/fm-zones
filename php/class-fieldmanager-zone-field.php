@@ -185,6 +185,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 
 			$args = array(
 				's' => sanitize_text_field( $_POST['term'] ),
+				'orderby' => 'relevance',
 			);
 			if ( ! empty( $_POST['exclude'] ) ) {
 				$args['post__not_in'] = array_map( 'intval', (array) $_POST['exclude'] );
