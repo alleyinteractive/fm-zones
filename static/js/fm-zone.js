@@ -38,18 +38,48 @@
 		}
 
 		var add_post = function( post ) {
-			var limit = $container.data( 'limit' ) - 0;
-			if ( limit > 0 && $( '.zone-posts-list', $container ).children().length >= limit ) {
+			var limit = $container.data( 'limit' ) - 0,
+				$zone_posts = $( '.zone-posts-list > .zone-post', $container );
+
+			if ( limit > 0 && $zone_posts.length >= limit ) {
 				obj.error_message( fm_zone_l10n.too_many_items );
 				return;
 			}
-			post.i = $( '.zone-posts-list', $container ).children().length + 1;
+
+			var $placeholders = $( '.zone-placeholder', $container );
+			post.i = $zone_posts.length + 1;
 			var $el = $( tpl( post ) ).hide();
-			$container.trigger( 'fm-zone-pre-add-post', [$el, post] );
+
+			$container.trigger( 'fm-zone-pre-add-post', [ $el, post ] );
 			$( 'input:hidden', $el ).attr( 'name', field_name );
-			$( '.zone-posts-list', $container ).append( $el.fadeIn() );
+			$el.fadeIn();
+			if ( $placeholders.length ) {
+				$placeholders.first().replaceWith( $el );
+			} else {
+				$( '.zone-posts-list', $container ).append( $el );
+			}
 			obj.remove_from_recents( post.id );
-			$container.trigger( 'fm-zone-after-add-post', [$el, post] );
+			$container.trigger( 'fm-zone-after-add-post', [ $el, post ] );
+		}
+
+		var maybe_populate_placeholders = function() {
+			var placeholders = $container.data( 'placeholders' );
+			if ( ! placeholders ) {
+				return;
+			}
+
+			var count = $( '.zone-posts-list', $container ).children().length;
+
+			// If we have enough posts, no need to add placeholders
+			if ( count >= placeholders ) {
+				return;
+			}
+
+			// debugger;
+
+			for ( var i = 0; i < placeholders - count; i++ ) {
+				$( '.zone-posts-list', $container ).append( $( '<div class="zone-placeholder" />' ).text( fm_zone_l10n.placeholder_content ) );
+			}
 		}
 
 		obj.error_message = function( msg ) {
@@ -97,6 +127,7 @@
 			, connectWith: '.fm-zone-posts-connected .zone-posts-list'
 			, placeholder: 'ui-state-highlight'
 			, forcePlaceholderSize: true
+			, items: '.zone-post'
 		} );
 
 		$container.on( 'click', '.delete', function( e ) {
@@ -104,6 +135,7 @@
 			$( this ).closest( '.zone-post' ).fadeOut( 'normal', function() {
 				$( this ).remove();
 				obj.reorder_posts();
+				maybe_populate_placeholders();
 			} );
 		} );
 
@@ -155,6 +187,9 @@
 
 		// Lastly, populate with existing data
 		_.each( posts, add_post );
+
+		// If we have a limit, but not all the posts, add in a placeholder
+		maybe_populate_placeholders();
 	};
 
 

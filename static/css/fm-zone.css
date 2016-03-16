@@ -31,11 +31,12 @@
   border: 3px dashed #bbb;
   background: none;
   color: #bbb;
+  height: 65px;
 }
 .fm-zone-posts-wrapper .zone-posts-list.ui-sortable .zone-post {
   cursor: move;
 }
-.fm-zone-posts-wrapper .zone-post {
+.fm-zone-posts-wrapper .zone-post, .fm-zone-posts-wrapper .zone-placeholder {
   padding: 5px 0 5px 10px;
   margin-bottom: 5px;
   font-size: 12px;
@@ -49,41 +50,54 @@
   border-radius: 4px;
   background: #f5f5f5;
 }
-.fm-zone-posts-wrapper .zone-post table {
+.fm-zone-posts-wrapper .zone-post table, .fm-zone-posts-wrapper .zone-placeholder table {
   width: 100%;
 }
-.fm-zone-posts-wrapper .zone-post:hover .zone-post-position {
+.fm-zone-posts-wrapper .zone-post:hover .zone-post-position, .fm-zone-posts-wrapper .zone-placeholder:hover .zone-post-position {
   background: url(../images/drag.png) no-repeat left center;
   text-indent: -9999px;
 }
-.fm-zone-posts-wrapper .zone-post .row-actions {
+.fm-zone-posts-wrapper .zone-post .row-actions, .fm-zone-posts-wrapper .zone-placeholder .row-actions {
   font-size: 11px;
   font-weight: normal;
 }
 .fm-zone-posts-wrapper .zone-post :hover .row-actions,
 .fm-zone-posts-wrapper .zone-post .loading .row-actions,
 .fm-zone-posts-wrapper .zone-post :hover .zone-post-handle,
-.fm-zone-posts-wrapper .zone-post .loading .zone-post-handle {
+.fm-zone-posts-wrapper .zone-post .loading .zone-post-handle, .fm-zone-posts-wrapper .zone-placeholder :hover .row-actions,
+.fm-zone-posts-wrapper .zone-placeholder .loading .row-actions,
+.fm-zone-posts-wrapper .zone-placeholder :hover .zone-post-handle,
+.fm-zone-posts-wrapper .zone-placeholder .loading .zone-post-handle {
   visibility: visible;
 }
-.fm-zone-posts-wrapper .zone-post.loading .zone-post-position {
+.fm-zone-posts-wrapper .zone-post.loading .zone-post-position, .fm-zone-posts-wrapper .zone-placeholder.loading .zone-post-position {
   background-image: url(../images/wpspin_light.gif);
   background-repeat: no-repeat;
   background-position: center center;
   text-indent: -9999px;
 }
-.fm-zone-posts-wrapper .zone-post .zone-post-thumbnail {
+.fm-zone-posts-wrapper .zone-post .zone-post-thumbnail, .fm-zone-posts-wrapper .zone-placeholder .zone-post-thumbnail {
   width: 60px;
   text-align: center;
 }
-.fm-zone-posts-wrapper .zone-post .zone-post-thumbnail img {
+.fm-zone-posts-wrapper .zone-post .zone-post-thumbnail img, .fm-zone-posts-wrapper .zone-placeholder .zone-post-thumbnail img {
   max-width: 50px;
   max-height: 50px;
 }
-.fm-zone-posts-wrapper .zone-post .zone-post-post_type {
+.fm-zone-posts-wrapper .zone-post .zone-post-post_type, .fm-zone-posts-wrapper .zone-placeholder .zone-post-post_type {
   width: 90px;
   padding-right: 10px;
   text-align: right;
+}
+.fm-zone-posts-wrapper .zone-placeholder {
+  height: 53px;
+  font-size: 24px;
+  text-align: center;
+  line-height: 53px;
+  font-style: italic;
+  color: #ddd;
+  background: #fafafa;
+  border: 4px dashed #eee;
 }
 .fm-zone-posts-wrapper .zone-post-position {
   font-size: 24px;

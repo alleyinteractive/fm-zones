@@ -34,12 +34,13 @@
 			border: 3px dashed #bbb;
 			background: none;
 			color: #bbb;
+			height: 65px;
 		}
 		&.ui-sortable .zone-post {
 			cursor: move;
 		}
 	}
-	.zone-post {
+	.zone-post, .zone-placeholder {
 		padding: 5px 0 5px 10px;
 		margin-bottom: 5px;
 		font-size: 12px;
@@ -88,6 +89,16 @@
 			padding-right: 10px;
 			text-align: right;
 		}
+	}
+	.zone-placeholder {
+		height: 53px;
+		font-size: 24px;
+		text-align: center;
+		line-height: 53px;
+		font-style: italic;
+		color: #ddd;
+		background: #fafafa;
+		border: 4px dashed #eee;
 	}
 	.zone-post-position {
 		font-size: 24px;
