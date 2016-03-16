@@ -19,6 +19,8 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 
 		public $post_limit = 0;
 
+		public $placeholders = 0;
+
 		public static $assets_enqueued = false;
 
 		public function __construct( $label = '', $options = array() ) {
@@ -43,6 +45,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 			wp_enqueue_script( 'fm-zone-script', FMZ_URL . '/static/js/fm-zone.js', array( 'jquery', 'underscore', 'jquery-ui-sortable', 'jquery-ui-autocomplete' ), FMZ_VERSION, true );
 			wp_localize_script( 'fm-zone-script', 'fm_zone_l10n', array(
 				'too_many_items' => __( "You've reached the post limit on this field. To add more posts, you must remove one or more.", 'fm-zones' ),
+				'placeholder_content' => apply_filters( 'fm-zones-placeholder-content', __( 'Select a post to fill this position', 'fm-zones' ) ),
 			) );
 		}
 
@@ -149,7 +152,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 					get_posts( array(
 						'post__in' => $ids,
 						'post_status' => 'any',
-						'post_type' => get_post_types( array( 'public' => true ) ),
+						'post_type' => 'any',
 						'orderby' => 'post__in',
 						'order' => 'asc',
 						'posts_per_page' => 100, // arbitrarily high limit
