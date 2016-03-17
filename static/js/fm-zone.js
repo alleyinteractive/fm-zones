@@ -188,6 +188,9 @@
 		// Lastly, populate with existing data
 		_.each( posts, add_post );
 
+		// Remove hidden elements
+		$( '.fmz-remove-if-js', $container ).remove();
+
 		// If we have a limit, but not all the posts, add in a placeholder
 		maybe_populate_placeholders();
 	};
