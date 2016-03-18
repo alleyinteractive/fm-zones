@@ -132,13 +132,13 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 					'post_type'   => $post->post_type,
 					'title'  => $post->post_title,
 					'date'   => $post->post_date,
-					'thumb'  => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail( $post->ID, array( 50, 50 ) ) : '',
+					'thumb'  => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, array( 50, 50 ) ) : '',
 					'link'   => get_permalink( $post->ID ),
 				);
 			}
 
 			if ( 'json' == $format ) {
-				return json_encode( $return );
+				return wp_json_encode( $return );
 			} else {
 				return $return;
 			}
