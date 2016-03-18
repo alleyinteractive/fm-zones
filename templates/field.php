@@ -50,6 +50,10 @@ if ( is_array( $value ) ) {
 		</div>
 	</script>
 
-	<div class="zone-posts-list"></div>
+	<div class="zone-posts-list">
+	</div>
 
+	<?php foreach ( $current_ids as $id ) : ?>
+		<input type="hidden" class="fm-element fmz-remove-if-js" name="<?php echo esc_attr( $this->get_form_name( '[]' ) ); ?>" value="<?php echo absint( $id ) ?>" />
+	<?php endforeach ?>
 </div>
