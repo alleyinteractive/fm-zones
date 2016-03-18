@@ -31,7 +31,9 @@ if ( is_array( $value ) ) {
 				<tr>
 					<td class="zone-post-col zone-post-position"><%- i %></td>
 					<td class="zone-post-col zone-post-thumbnail">
-						<%= thumb %>
+						<% if ( thumb ) { %>
+							<img src="<%- thumb %>" />
+						<% } %>
 					</td>
 					<td class="zone-post-col zone-post-info">
 						<%- title %> <span class="zone-post-status"><%- post_status %></span>
