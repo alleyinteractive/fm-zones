@@ -169,6 +169,7 @@
   overflow: hidden;
   *zoom: 1;
   border: 1px solid #fff;
+  white-space: normal;
 }
 .fm-zone-posts-wrapper .ui-autocomplete li .image {
   float: left;
