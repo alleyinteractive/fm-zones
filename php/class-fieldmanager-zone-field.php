@@ -152,7 +152,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 					get_posts( array(
 						'post__in' => $ids,
 						'post_status' => 'any',
-						'post_type' => 'any',
+						'post_type' => get_post_types(),
 						'orderby' => 'post__in',
 						'order' => 'asc',
 						'posts_per_page' => 100, // arbitrarily high limit
