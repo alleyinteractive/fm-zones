@@ -12,8 +12,8 @@ if ( is_array( $value ) ) {
 	<div class="zone-search-wrapper">
 		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_recent"><?php
 			echo esc_html( sprintf(
-				__( 'Add Recent %s', 'fm-zones' ),
-				apply_filters( 'fm-zones-content-label', __( 'Content', 'fm-zones' ) )
+				__( 'Add recent %s', 'fm-zones' ),
+				apply_filters( 'fm-zones-content-label', __( 'content', 'fm-zones' ) )
 			) ); ?></label><br>
 		<select class="zone-post-latest" id="<?php echo esc_attr( $this->get_element_id() ); ?>_recent">
 			<option value=""><?php esc_html_e( 'Choose a post', 'fm-zones' ); ?></option>
