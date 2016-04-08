@@ -10,12 +10,7 @@ if ( is_array( $value ) ) {
 	<input type="hidden" class="fm-element zone-name" name="<?php echo esc_attr( $this->get_form_name() ); ?>" value="" />
 
 	<div class="zone-search-wrapper">
-		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_recent"><?php
-			printf(
-				'%1$s %2$s',
-				esc_html__( 'Add Recent', 'fm-zones' ),
-				apply_filters( 'fm-zones-content-label', __( 'Content', 'fm-zones' ) )
-			); ?></label><br>
+		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_recent"><?php esc_html_e( 'Add Recent Content', 'fm-zones' ); ?></label><br>
 		<select class="zone-post-latest" id="<?php echo esc_attr( $this->get_element_id() ); ?>_recent">
 			<option value=""><?php esc_html_e( 'Choose a post', 'fm-zones' ); ?></option>
 			<?php foreach ( $this->get_recent_posts( $current_ids ) as $post ) : ?>
@@ -25,20 +20,9 @@ if ( is_array( $value ) ) {
 	</div>
 
 	<div class="zone-search-wrapper">
-		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_search"><?php
-			printf(
-				'%1$s %2$s',
-				esc_html__( 'Search for', 'fm-zones' ),
-				apply_filters( 'fm-zones-content-label', esc_html__( 'content', 'fm-zones' ) )
-			); ?></label>
+		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_search"><?php esc_html_e( 'Search for content', 'fm-zones' );?></label>
 		<input type="text" class="zone-post-search" id="<?php echo esc_attr( $this->get_element_id() ); ?>_search" <?php echo $this->get_element_autocomplete_attributes(); ?> />
-		<p class="description"><?php
-			printf(
-				'%1$s %2$s %3$s',
-				esc_html__( 'Enter a term or phrase in the text box above to search for and add', 'fm-zones' ),
-				apply_filters( 'fm-zones-content-label', esc_html__( 'content', 'fm-zones' ) ),
-				esc_html__( 'to this zone.', 'fm-zones' )
-			); ?></p>
+		<p class="description"><?php esc_html_e( 'Enter a term or phrase in the text box above to search for and add content to this zone.', 'fm-zones' ); ?></p>
 	</div>
 
 	<script type="text/template" class="fmz-post-template">
