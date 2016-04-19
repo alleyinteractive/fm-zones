@@ -155,7 +155,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 						'post_type' => 'any',
 						'orderby' => 'post__in',
 						'order' => 'asc',
-						'posts_per_page' => 50, // highest limit to not flag sniffer
+						'posts_per_page' => count( $ids ),
 					) ),
 					'json'
 				);
