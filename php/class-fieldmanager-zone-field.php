@@ -70,9 +70,9 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 		public function get_element_autocomplete_attributes() {
 			$attr_str = array();
 			foreach ( $this->autocomplete_attributes as $attr => $val ) {
-				if ( $val === true ){
+				if ( true === $val ) {
 					$attr_str[] = sanitize_key( $attr );
-				} else{
+				} else {
 					$attr_str[] = sprintf( '%s="%s"', sanitize_key( $attr ), esc_attr( $val ) );
 				}
 			}
@@ -155,7 +155,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 						'post_type' => 'any',
 						'orderby' => 'post__in',
 						'order' => 'asc',
-						'posts_per_page' => 100, // arbitrarily high limit
+						'posts_per_page' => 50, // highest limit to not flag sniffer
 					) ),
 					'json'
 				);
@@ -187,7 +187,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 			}
 
 			$args = array(
-				's' => sanitize_text_field( $_POST['term'] ),
+				's' => sanitize_text_field( wp_unslash( $_POST['term'] ) ),
 				'orderby' => 'relevance',
 			);
 			if ( ! empty( $_POST['exclude'] ) ) {
