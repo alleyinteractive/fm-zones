@@ -111,6 +111,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 					'post_type' => 'post',
 					'post_status' => 'publish',
 					'posts_per_page' => 10,
+					'suppress_filters' => false,
 				),
 				$this->query_args,
 				$args
@@ -156,6 +157,7 @@ if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_
 						'orderby' => 'post__in',
 						'order' => 'asc',
 						'posts_per_page' => count( $ids ),
+						'suppress_filters' => false,
 					) ),
 					'json'
 				);
