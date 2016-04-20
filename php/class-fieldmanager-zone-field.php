@@ -68,9 +68,9 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	public function get_element_autocomplete_attributes() {
 		$attr_str = array();
 		foreach ( $this->autocomplete_attributes as $attr => $val ) {
-			if ( true === $val ){
+			if ( true === $val ) {
 				$attr_str[] = sanitize_key( $attr );
-			} else{
+			} else {
 				$attr_str[] = sprintf( '%s="%s"', sanitize_key( $attr ), esc_attr( $val ) );
 			}
 		}
