@@ -7,8 +7,6 @@
 	<exclude-pattern>node_modules/*</exclude-pattern>
 
 	<rule ref="WordPress-VIP">
-		<exclude name="WordPress.CSRF.NonceVerification" />
-		<exclude name="WordPress.VIP.ValidatedSanitizedInput" />
-		<exclude name="WordPress.VIP.FileSystemWritesDisallow.FileWriteDetected" />
+		<exclude name="WordPress.XSS.EscapeOutput.OutputNotEscaped" />
 	</rule>
 </ruleset>

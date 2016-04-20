@@ -68,9 +68,9 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	public function get_element_autocomplete_attributes() {
 		$attr_str = array();
 		foreach ( $this->autocomplete_attributes as $attr => $val ) {
-			if ( $val === true ){
+			if ( true === $val ) {
 				$attr_str[] = sanitize_key( $attr );
-			} else{
+			} else {
 				$attr_str[] = sprintf( '%s="%s"', sanitize_key( $attr ), esc_attr( $val ) );
 			}
 		}
@@ -109,6 +109,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 				'post_type' => 'post',
 				'post_status' => 'publish',
 				'posts_per_page' => 10,
+				'suppress_filters' => false,
 			),
 			$this->query_args,
 			$args
@@ -153,7 +154,8 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 					'post_type' => get_post_types(),
 					'orderby' => 'post__in',
 					'order' => 'asc',
-					'posts_per_page' => 100, // arbitrarily high limit
+					'posts_per_page' => count( $ids ),
+					'suppress_filters' => false,
 				) ),
 				'json'
 			);
@@ -185,7 +187,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		}
 
 		$args = array(
-			's' => sanitize_text_field( $_POST['term'] ),
+			's' => sanitize_text_field( wp_unslash( $_POST['term'] ) ),
 			'orderby' => 'relevance',
 		);
 		if ( ! empty( $_POST['exclude'] ) ) {
