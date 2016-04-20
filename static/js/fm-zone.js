@@ -8,6 +8,18 @@
 		  , field_name = $( 'input:hidden.zone-name', $container ).attr( 'name' ) + '[]';
 		;
 
+		var item_tpl = _.template(
+			'<a>'
+				+ '<span class="image"><img src="<%- thumb %>" /></span>'
+				+ '<span class="details">'
+					+ '<span class="title"><%- title %></span>'
+					+ '<span class="type"><%- post_type %></span>'
+					+ '<span class="date"><%- date %></span>'
+					+ '<span class="status"><%- post_status %></span>'
+				+ '</span>'
+			+ '</a>'
+		);
+
 		if ( ! posts ) {
 			posts = [];
 		}
@@ -19,18 +31,65 @@
 			// Reorder the receiving container
 			receiving_container = $( ui.item ).closest( '.fm-zone-posts-wrapper' );
 			var zone = receiving_container.data( 'fm_zonify' );
-			if ( zone ) {
+			if ( zone && zone !== obj ) {
 				zone.reorder_posts();
 				zone.remove_from_recents( $( ui.item ).data( 'post-id' ) );
 			}
 		}
 
 		var add_post = function( post ) {
-			post.i = $( '.zone-posts-list', $container ).children().length + 1;
+			var limit = $container.data( 'limit' ) - 0,
+				$zone_posts = $( '.zone-posts-list > .zone-post', $container );
+
+			if ( limit > 0 && $zone_posts.length >= limit ) {
+				obj.error_message( fm_zone_l10n.too_many_items );
+				return;
+			}
+
+			var $placeholders = $( '.zone-placeholder', $container );
+			post.i = $zone_posts.length + 1;
 			var $el = $( tpl( post ) ).hide();
+
+			$container.trigger( 'fm-zone-pre-add-post', [ $el, post ] );
 			$( 'input:hidden', $el ).attr( 'name', field_name );
-			$( '.zone-posts-list', $container ).append( $el.fadeIn() );
+			$el.fadeIn();
+			if ( $placeholders.length ) {
+				$placeholders.first().replaceWith( $el );
+			} else {
+				$( '.zone-posts-list', $container ).append( $el );
+			}
 			obj.remove_from_recents( post.id );
+			$container.trigger( 'fm-zone-after-add-post', [ $el, post ] );
+		}
+
+		var maybe_populate_placeholders = function() {
+			var placeholders = $container.data( 'placeholders' );
+			if ( ! placeholders ) {
+				return;
+			}
+
+			var count = $( '.zone-posts-list', $container ).children().length;
+
+			// If we have enough posts, no need to add placeholders
+			if ( count >= placeholders ) {
+				return;
+			}
+
+			// debugger;
+
+			for ( var i = 0; i < placeholders - count; i++ ) {
+				$( '.zone-posts-list', $container ).append( $( '<div class="zone-placeholder" />' ).text( fm_zone_l10n.placeholder_content ) );
+			}
+		}
+
+		obj.error_message = function( msg ) {
+			var $div = $( '.fmz-notice', $container );
+			if ( ! $div.length ) {
+				$div = $( '<div class="fmz-notice" />' ).hide();
+				$( '.zone-posts-list', $container ).before( $div );
+			}
+			$div.text( msg ).fadeIn();
+			setTimeout( function() { $div.fadeOut(); }, 10000 );
 		}
 
 		obj.remove_from_recents = function( id ) {
@@ -38,10 +97,12 @@
 		}
 
 		obj.reorder_posts = function() {
+			$container.trigger( 'fm-zone-reorder-start' );
 			$( '.zone-post:visible', $container ).each( function( index ) {
 				$( '.zone-post-position', this ).text( index + 1 );
 				$( 'input:hidden', this ).attr( 'name', field_name );
 			} );
+			$container.trigger( 'fm-zone-reorder-stop' );
 		}
 
 		obj.get_current_ids = function() {
@@ -66,6 +127,7 @@
 			, connectWith: '.fm-zone-posts-connected .zone-posts-list'
 			, placeholder: 'ui-state-highlight'
 			, forcePlaceholderSize: true
+			, items: '.zone-post'
 		} );
 
 		$container.on( 'click', '.delete', function( e ) {
@@ -73,6 +135,7 @@
 			$( this ).closest( '.zone-post' ).fadeOut( 'normal', function() {
 				$( this ).remove();
 				obj.reorder_posts();
+				maybe_populate_placeholders();
 			} );
 		} );
 
@@ -115,24 +178,21 @@
 		/* Manipulate the results */
 		var autocomplete = $search_field.data( 'autocomplete' ) || $search_field.data( 'ui-autocomplete' );
 		autocomplete._renderItem = function( ul, item ) {
-			var content = '<a>'
-				+ '<span class="image">' + item.thumb + '</span>'
-				+ '<span class="details">'
-					+ '<span class="title">' + item.title + '</span>'
-					+ '<span class="type">' + item.post_type + '</span>'
-					+ '<span class="date">' + item.date + '</span>'
-					+ '<span class="status">' + item.post_status + '</span>'
-				+ '</span>'
-				+ '</a>';
 			return $( '<li></li>' )
 				.data( 'item.autocomplete', item )
-				.append( content )
+				.append( item_tpl( item ) )
 				.appendTo( ul )
 				;
 		}
 
 		// Lastly, populate with existing data
 		_.each( posts, add_post );
+
+		// Remove hidden elements
+		$( '.fmz-remove-if-js', $container ).remove();
+
+		// If we have a limit, but not all the posts, add in a placeholder
+		maybe_populate_placeholders();
 	};
 
 
@@ -159,6 +219,10 @@
 
 	$( document ).ready( function() {
 		var zonifier = function() {
+			if ( $( this ).closest( '.fmjs-proto' ).length ) {
+				return;
+			}
+
 			var posts = [];
 			if ( $( this ).data( 'current' ) ) {
 				try {
@@ -171,7 +235,7 @@
 			$( this ).fm_zonify( posts );
 		}
 
-		$( '.fm-zone-posts-wrapper:visible' ).each( zonifier );
+		$( '.fm-zone-posts-wrapper' ).each( zonifier );
 
 		$( document ).on( 'fm_collapsible_toggle fm_added_element fm_displayif_toggle fm_activate_tab', function() {
 			$( '.fm-zone-posts-wrapper:visible:not(.zonified)' ).each( zonifier );

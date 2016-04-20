@@ -15,6 +15,12 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 	public $ajax_args = array();
 
+	public $post_limit = 0;
+
+	public $placeholders = 0;
+
+	public static $assets_enqueued = false;
+
 	public function __construct( $label = '', $options = array() ) {
 		$this->template = FMZ_PATH . '/templates/field.php';
 		$this->multiple = true;
@@ -22,14 +28,23 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 		parent::__construct( $label, $options );
 
-		add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
 		add_action( 'wp_ajax_' . $this->get_ajax_action(), array( $this, 'ajax_request' ) );
+
+		// Only enqueue assets once per request
+		if ( ! self::$assets_enqueued ) {
+			self::$assets_enqueued = true;
+			add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
+		}
 	}
 
 	public function assets() {
 		wp_enqueue_style( 'fm-zone-jquery-ui', FMZ_URL . '/static/jquery-ui/smoothness/jquery-ui.theme.css', false, FMZ_VERSION, 'all' );
 		wp_enqueue_style( 'fm-zone-styles', FMZ_URL . '/static/css/fm-zone.css', false, FMZ_VERSION, 'all' );
 		wp_enqueue_script( 'fm-zone-script', FMZ_URL . '/static/js/fm-zone.js', array( 'jquery', 'underscore', 'jquery-ui-sortable', 'jquery-ui-autocomplete' ), FMZ_VERSION, true );
+		wp_localize_script( 'fm-zone-script', 'fm_zone_l10n', array(
+			'too_many_items' => __( "You've reached the post limit on this field. To add more posts, you must remove one or more.", 'fm-zones' ),
+			'placeholder_content' => apply_filters( 'fm-zones-placeholder-content', __( 'Select a post to fill this position', 'fm-zones' ) ),
+		) );
 	}
 
 	public function form_element( $value = null ) {
@@ -115,13 +130,13 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 				'post_type'   => $post->post_type,
 				'title'  => $post->post_title,
 				'date'   => $post->post_date,
-				'thumb'  => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail( $post->ID, array( 50, 50 ) ) : '',
+				'thumb'  => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, array( 50, 50 ) ) : '',
 				'link'   => get_permalink( $post->ID ),
 			);
 		}
 
 		if ( 'json' == $format ) {
-			return json_encode( $return );
+			return wp_json_encode( $return );
 		} else {
 			return $return;
 		}
@@ -135,9 +150,10 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 				get_posts( array(
 					'post__in' => $ids,
 					'post_status' => 'any',
-					'post_type' => 'any',
+					'post_type' => get_post_types(),
 					'orderby' => 'post__in',
 					'order' => 'asc',
+					'posts_per_page' => 100, // arbitrarily high limit
 				) ),
 				'json'
 			);
@@ -170,6 +186,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 		$args = array(
 			's' => sanitize_text_field( $_POST['term'] ),
+			'orderby' => 'relevance',
 		);
 		if ( ! empty( $_POST['exclude'] ) ) {
 			$args['post__not_in'] = array_map( 'intval', (array) $_POST['exclude'] );
@@ -194,10 +211,55 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 */
 	public function presave( $values, $current_values = array() ) {
 		if ( is_array( $values ) ) {
+			// Fieldmanager_Field doesn't like it when $values is an array,
+			// so we need to replicate what it does here.
+			foreach ( $values as $value ) {
+				foreach ( $this->validate as $func ) {
+					if ( ! call_user_func( $func, $value ) ) {
+						$this->_failed_validation( sprintf(
+							__( 'Input "%1$s" is not valid for field "%2$s" ', 'fm-zones' ),
+							(string) $value,
+							$this->label
+						) );
+					}
+				}
+			}
+
 			return array_map( $this->sanitize, $values );
 		} else {
-			return call_user_func( $this->sanitize, $values );
+			return parent::presave( $values, $current_values );
 		}
 	}
 
+	/**
+	 * Alter values before they go through the sanitize & save routine.
+	 *
+	 * Here, we're enforcing $post_limit.
+	 *
+	 * @param  array $values Field values being saved. This will either be
+	 *                       an array of ints if this is a singular field,
+	 *                       or an array of array of ints if $limit != 1.
+	 * @param  array $current_values Field's previous values.
+	 * @return array Altered values.
+	 */
+	public function presave_alter_values( $values, $current_values = array() ) {
+		if ( $this->post_limit > 0 ) {
+			if ( ! empty( $values[0] ) && is_array( $values[0] ) ) {
+				// If this is an array of arrays, limit each individually
+				$values = array_filter( $values );
+				foreach ( $values as $i => $value ) {
+					if ( ! is_array( $value ) ) {
+						unset( $values[ $i ] );
+					} else {
+						$values[ $i ] = array_slice( $value, 0, $this->post_limit );
+					}
+				}
+			} elseif ( is_array( $values ) ) {
+				// this is an array of ints, so we can enforce the limit on it
+				$values = array_slice( $values, 0, $this->post_limit );
+			}
+		}
+
+		return parent::presave_alter_values( $values, $current_values );
+	}
 }
