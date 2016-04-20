@@ -32,10 +32,13 @@ before_script:
     fi
   - |
     if [[ "$WP_PHPCS" == "1" ]]; then
+      og_dir="$(pwd)"
+      cd ..
       composer install
       export PATH=$PATH:${PWD}/vendor/bin/
       # After CodeSniffer install you should refresh your path.
       phpenv rehash
+      cd $og_dir
     fi
 
 script:
