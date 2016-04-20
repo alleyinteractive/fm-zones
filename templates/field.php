@@ -10,7 +10,11 @@ if ( is_array( $value ) ) {
 	<input type="hidden" class="fm-element zone-name" name="<?php echo esc_attr( $this->get_form_name() ); ?>" value="" />
 
 	<div class="zone-search-wrapper">
-		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_recent"><?php esc_html_e( 'Add Recent Content', 'fm-zones' ); ?></label><br>
+		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_recent"><?php
+			echo esc_html( sprintf(
+				__( 'Add recent %s', 'fm-zones' ),
+				apply_filters( 'fm-zones-content-label', __( 'content', 'fm-zones' ) )
+			) ); ?></label><br>
 		<select class="zone-post-latest" id="<?php echo esc_attr( $this->get_element_id() ); ?>_recent">
 			<option value=""><?php esc_html_e( 'Choose a post', 'fm-zones' ); ?></option>
 			<?php foreach ( $this->get_recent_posts( $current_ids ) as $post ) : ?>
@@ -20,9 +24,17 @@ if ( is_array( $value ) ) {
 	</div>
 
 	<div class="zone-search-wrapper">
-		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_search"><?php esc_html_e( 'Search for content', 'fm-zones' );?></label>
+		<label for="<?php echo esc_attr( $this->get_element_id() ); ?>_search"><?php
+			echo esc_html( sprintf(
+				__( 'Search for %s', 'fm-zones' ),
+				apply_filters( 'fm-zones-content-label', __( 'content', 'fm-zones' ) )
+			) ); ?></label>
 		<input type="text" class="zone-post-search" id="<?php echo esc_attr( $this->get_element_id() ); ?>_search" <?php echo $this->get_element_autocomplete_attributes(); ?> />
-		<p class="description"><?php esc_html_e( 'Enter a term or phrase in the text box above to search for and add content to this zone.', 'fm-zones' ); ?></p>
+		<p class="description"><?php
+			echo esc_html( sprintf(
+				__( 'Enter a term or phrase in the text box above to search for and add %s to this zone.', 'fm-zones' ),
+				apply_filters( 'fm-zones-content-label', __( 'content', 'fm-zones' ) )
+			) ); ?></p>
 	</div>
 
 	<script type="text/template" class="fmz-post-template">

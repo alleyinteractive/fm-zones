@@ -10,7 +10,7 @@
 
 		var item_tpl = _.template(
 			'<a>'
-				+ '<span class="image"><%= thumb %></span>'
+				+ '<span class="image"><img src="<%- thumb %>" /></span>'
 				+ '<span class="details">'
 					+ '<span class="title"><%- title %></span>'
 					+ '<span class="type"><%- post_type %></span>'
