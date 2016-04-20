@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="fm-zones">
+	<description>Sniffs for the coding standards of the FM Zones plugin</description>
+
+	<rule ref="WordPress-VIP">
+		<exclude name="WordPress.CSRF.NonceVerification" />
+		<exclude name="WordPress.VIP.ValidatedSanitizedInput" />
+		<exclude name="WordPress.VIP.FileSystemWritesDisallow.FileWriteDetected" />
+	</rule>
+</ruleset>
