@@ -35,7 +35,7 @@ function fmz_load_fieldmanager_zone_field() {
 	if ( class_exists( 'Fieldmanager_Field' ) && ! class_exists( 'Fieldmanager_Zone_Field' ) ) {
 		define( 'FMZ_PATH', dirname( __FILE__ ) );
 		define( 'FMZ_URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
-		define( 'FMZ_VERSION', '0.1.10' );
+		define( 'FMZ_VERSION', '0.1.11' );
 		require_once( FMZ_PATH . '/php/class-fieldmanager-zone-field.php' );
 	}
 }
