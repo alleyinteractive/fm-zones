@@ -33,7 +33,11 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		// Only enqueue assets once per request
 		if ( ! self::$assets_enqueued ) {
 			self::$assets_enqueued = true;
-			add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
+			if ( did_action( 'admin_enqueue_scripts' ) ) {
+				$this->assets();
+			} else {
+				add_action( 'admin_enqueue_scripts', array( $this, 'assets' ) );
+			}
 		}
 	}
 
