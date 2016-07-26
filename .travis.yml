@@ -41,8 +41,5 @@ before_script:
 script:
   - if [[ "$PHP_LINT" == "1" ]]; then find . -type "f" -iname "*.php" | xargs -L "1" php -l; fi
   - if [[ "$WP_PHPCS" == "1" ]]; then phpcs -p -s -v -n --standard=./codesniffer.ruleset.xml --extensions=php .; fi
-  - |
-    if [[ ! -z "$WP_VERSION" ]] ; then
-      phpunit
-      phpunit -c multisite.xml
-    fi
+  - phpunit
+  - phpunit -c multisite.xml
