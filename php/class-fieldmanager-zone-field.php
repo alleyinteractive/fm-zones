@@ -28,7 +28,8 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 		parent::__construct( $label, $options );
 
-		add_action( 'wp_ajax_' . $this->get_ajax_action(), array( $this, 'ajax_request' ) );
+		// Hook after the field has been fully constructed, which is on `init`.
+		add_action( 'wp_loaded', array( $this, 'hook_ajax_action' ) );
 
 		// Only enqueue assets once per request
 		if ( ! self::$assets_enqueued ) {
@@ -49,6 +50,16 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			'too_many_items' => __( "You've reached the post limit on this field. To add more posts, you must remove one or more.", 'fm-zones' ),
 			'placeholder_content' => apply_filters( 'fm-zones-placeholder-content', __( 'Select a post to fill this position', 'fm-zones' ) ),
 		) );
+	}
+
+	/**
+	 * Hook into the ajax action for this field.
+	 *
+	 * This is done after the field has been defined so we have access to the
+	 * field's ancestors.
+	 */
+	public function hook_ajax_action() {
+		add_action( 'wp_ajax_' . $this->get_ajax_action(), array( $this, 'ajax_request' ) );
 	}
 
 	public function form_element( $value = null ) {
