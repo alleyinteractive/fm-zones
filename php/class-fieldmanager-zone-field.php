@@ -130,7 +130,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			$args
 		);
 
-		return $this->format_posts( get_posts( $args ) );
+		return $this->format_posts( get_posts( apply_filters( 'fm_zones_get_posts_query_args', $args ) ) );
 	}
 
 	public function format_posts( $posts, $format = 'array' ) {
