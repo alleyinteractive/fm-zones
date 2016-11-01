@@ -130,7 +130,12 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			$args
 		);
 
-		return $this->format_posts( get_posts( $args ) );
+		/**
+		 * Filter the args for get_posts.
+		 *
+		 * @param array $args An array of arguments for get_posts or WP_Query.
+		 */
+		return $this->format_posts( get_posts( apply_filters( 'fm_zones_get_posts_query_args', $args ) ) );
 	}
 
 	public function format_posts( $posts, $format = 'array' ) {
