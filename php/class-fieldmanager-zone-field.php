@@ -207,7 +207,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		}
 
 		$args = array(
-			's' => sanitize_text_field( wp_unslash( $_POST['term'] ) ),
+			's' => sanitize_text_field( $_POST['term'] ),
 			'orderby' => 'relevance',
 		);
 		if ( ! empty( $_POST['exclude'] ) ) {
