@@ -120,15 +120,16 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 */
 	public function get_posts( $args = array() ) {
 		$args = array_merge(
-			array(
-				'post_type' => 'post',
-				'post_status' => 'publish',
-				'posts_per_page' => 10,
-				'suppress_filters' => false,
-			),
+			$args,
 			$this->query_args,
-			$args
+			array(
+				'post_type'      => 'post',
+				'post_status'    => 'publish',
+				'posts_per_page' => 10,
+			)
 		);
+
+		$args['suppress_filters'] = false;
 
 		/**
 		 * Filter the args for get_posts.
