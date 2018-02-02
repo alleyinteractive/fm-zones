@@ -222,7 +222,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			$args['post__not_in'] = array_map( 'intval', (array) $_POST['exclude'] );
 		}
 
-		// Support searching by URL.
+		// Support searching by URL/ID.
 		$post_id = null;
 		if ( preg_match( '/^https?\:/i', $term ) ) {
 			$url = esc_url( $term );
