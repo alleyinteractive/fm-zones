@@ -9,6 +9,18 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 	public $query_args = array();
 
+	/**
+	 * Default post arguments.
+	 *
+	 * @var array
+	 */
+	protected $default_args = array(
+		'post_type' => 'post',
+		'post_status' => 'publish',
+		'posts_per_page' => 10,
+		'suppress_filters' => false,
+	);
+
 	public $autocomplete_attributes = array();
 
 	public $accept_from_other_zones = false;
@@ -120,12 +132,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 */
 	public function get_posts( $args = array() ) {
 		$args = array_merge(
-			array(
-				'post_type' => 'post',
-				'post_status' => 'publish',
-				'posts_per_page' => 10,
-				'suppress_filters' => false,
-			),
+			$this->default_args,
 			$this->query_args,
 			$args
 		);
@@ -206,13 +213,57 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			wp_send_json_error( __( 'Search term is empty!', 'fm-zones' ) );
 		}
 
+		$term = sanitize_text_field( wp_unslash( $_POST['term'] ) );
 		$args = array(
-			's' => sanitize_text_field( wp_unslash( $_POST['term'] ) ),
+			's' => $term,
 			'orderby' => 'relevance',
 		);
 		if ( ! empty( $_POST['exclude'] ) ) {
 			$args['post__not_in'] = array_map( 'intval', (array) $_POST['exclude'] );
 		}
+
+		// Support searching by URL/ID.
+		$post_id = null;
+		if ( preg_match( '/^https?\:/i', $term ) ) {
+			$url = esc_url( $term );
+			$url_parts = parse_url( $url );
+
+			if ( ! empty( $url_parts['query'] ) ) {
+				$get_vars = array();
+				parse_str( $url_parts['query'], $get_vars );
+			}
+
+			if ( ! empty( $get_vars['post'] ) ) {
+				$post_id = intval( $get_vars['post'] );
+			} elseif ( ! empty( $get_vars['p'] ) ) {
+				$post_id = intval( $get_vars['p'] );
+			} else {
+				$post_id = fm_url_to_post_id( $term );
+			}
+		} elseif ( is_numeric( $term ) ) {
+			$post_id = intval( $term );
+		}
+
+		// If a specific post ID was matched.
+		if ( ! empty( $post_id ) ) {
+			$exact_post = get_post( $post_id );
+			$query_args = array_merge(
+				$this->default_args,
+				$this->query_args
+			);
+
+			if (
+				$exact_post instanceof WP_Post &&
+				(
+					'any' === $query_args['post_type'] ||
+					$query_args['post_type'] === $exact_post->post_type ||
+					in_array( $exact_post->post_type, (array) $query_args['post_type'], true )
+				)
+			) {
+				wp_send_json_success( $this->format_posts( [ $exact_post ] ) );
+			}
+		}
+
 		$posts = $this->get_posts( $args );
 
 		wp_send_json_success( $posts );
