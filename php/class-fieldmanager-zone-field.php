@@ -43,10 +43,11 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			add_action( 'wp_loaded', array( $this, 'hook_ajax_action' ) );
 		} else {
 			$datasource_provides_posts = $this->datasource instanceof Fieldmanager_Datasource_Post;
-			$datasource_provides_posts = apply_filters( 'fm_zone_datasource_provides_posts', $datasource_provides_posts );
+			$datasource_provides_posts = (bool) apply_filters( 'fm_zone_datasource_provides_posts', $datasource_provides_posts );
 
 			if ( ! $datasource_provides_posts ) {
-				$message = esc_html__( 'You must supply a datasource that returns WP_Post objects.', 'fm-zones' );
+				/* translators: 1: Filter tag. */
+				$message = esc_html( sprintf( __( 'You must specify a datasource that returns WP_Post objects. Use the \'%s\' filter to indicate that a custom datasource returns post objects.', 'fm-zones' ), 'fm_zone_datasource_provides_posts' ) );
 				if ( Fieldmanager_Field::$debug ) {
 					throw new FM_Developer_Exception( $message );
 				} else {
@@ -114,13 +115,14 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		list( $context, $subcontext ) = fm_get_context();
 		$this->attributes['data-context'] = $context;
 		$this->attributes['data-subcontext'] = $subcontext;
+		$this->attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
 
-		if ( ! empty( $this->datasource ) ) {
-			$this->attributes['data-action'] = $this->datasource->get_ajax_action( $this->name );
-		} else {
+		if ( empty( $this->datasource ) ) {
 			$this->attributes['data-action'] = $this->get_ajax_action( $this->name );
-			$this->attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
 			$this->attributes['data-args'] = wp_json_encode( $this->ajax_args );
+		} else {
+			$this->attributes['data-use-datasource'] = 1;
+			$this->attributes['data-action'] = $this->datasource->get_ajax_action( $this->name );
 		}
 
 		return parent::form_element( $value );
@@ -135,7 +137,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 * @return string HTML attributes ready to insert into an HTML tag.
 	 */
 	public function get_element_autocomplete_attributes() {
-		_deprecated_function( __METHOD__, 'fm-zones-0.1.11', __CLASS__ . '::get_element_attributes' );
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.12', __CLASS__ . '::get_element_attributes' );
 		return $this->get_element_attributes();
 	}
 
@@ -183,7 +185,6 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			$posts = get_posts( $args );
 		} else {
 			$posts = $this->datasource->get_items( $args['s'] ?? null );
-			$posts = $this->prepare_datasource_items( $posts, $args );
 		}
 
 		return $this->format_posts( $posts );
@@ -220,29 +221,6 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		} else {
 			return $return;
 		}
-	}
-
-	/**
-	 * Convert datasource items array to array of WP_Post objects
-	 *
-	 * @param array $posts Array keyed by post ID, value irrelevant.
-	 * @param array $query_args WP_Query arguments.
-	 * @return array
-	 */
-	public function prepare_datasource_items( array $posts, array $query_args ) : array {
-		// Back-compat excluded posts handling.
-		if ( isset( $query_args['post__not_in'] ) ) {
-			foreach ( $query_args['post__not_in'] as $excluded ) {
-				unset( $posts[ $excluded ] );
-			}
-		}
-
-		$posts = array_keys( $posts );
-		$posts = array_map( 'absint', $posts );
-		$posts = array_filter( $posts );
-		$posts = array_map( 'get_post', $posts );
-
-		return $posts;
 	}
 
 	public function get_current_posts_json( $ids ) {
