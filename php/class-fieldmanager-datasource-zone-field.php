@@ -10,6 +10,17 @@
  */
 class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	/**
+	 * Set up the datasource
+	 *
+	 * @param array $options Datasource options.
+	 */
+	public function __construct( array $options = array() ) {
+		parent::__construct( $options );
+
+		add_filter( 'fm_zones_excluded_posts', array( $this, 'set_excluded_posts' ) );
+	}
+
+	/**
 	 * Return matching posts, formatted as FM Zones expects
 	 *
 	 * @param string $fragment Search term.
@@ -17,7 +28,7 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	 */
 	public function get_items( $fragment = null ) {
 		$items = parent::get_items( $fragment );
-		return $this->prepare_datasource_items( $items, $this->query_args );
+		return $this->prepare_datasource_items( $items );
 	}
 
 	/**
@@ -79,22 +90,35 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	 * Convert datasource items array to array of WP_Post objects
 	 *
 	 * @param array $posts Array keyed by post ID, value irrelevant.
-	 * @param array $query_args WP_Query arguments.
 	 * @return array
 	 */
-	public function prepare_datasource_items( $posts, $query_args ) {
-		// Back-compat excluded posts handling.
-		if ( isset( $query_args['post__not_in'] ) ) {
-			foreach ( $query_args['post__not_in'] as $excluded ) {
-				unset( $posts[ $excluded ] );
-			}
-		}
-
+	public function prepare_datasource_items( $posts ) {
 		$posts = array_keys( $posts );
 		$posts = array_map( 'absint', $posts );
 		$posts = array_filter( $posts );
+
+		$excluded_posts = apply_filters( 'fm_zones_excluded_posts', array() );
+		$posts = array_diff( $posts, $excluded_posts );
+
 		$posts = array_map( 'get_post', $posts );
 
 		return $posts;
+	}
+
+	/**
+	 * Exclude already-chosen posts
+	 *
+	 * @param $excluded Post IDs already in use.
+	 * @return array
+	 */
+	public function set_excluded_posts( $excluded ) {
+		if ( isset( $_REQUEST['exclude'] ) && is_array( $_REQUEST['exclude'] ) ) { // WPCS: input var ok. CSRF ok.
+			$to_exclude = array_map( 'absint', $_REQUEST['exclude'] ); // WPCS: input var ok. CSRF ok.
+			$to_exclude = array_filter( $to_exclude );
+
+			$excluded = array_merge( $excluded, $to_exclude );
+		}
+
+		return $excluded;
 	}
 }
