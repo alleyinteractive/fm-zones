@@ -43,10 +43,10 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	 *
 	 * @param array  $posts Array of post objects to format.
 	 * @param string $format Return format, either `json` or `array`.
-	 * @return array|false|string
+	 * @return mixed
 	 */
-	public function format_posts( $posts, $format = 'array' ) {
-		$return = array();
+	public function format_posts( array $posts, string $format = 'array' ) {
+		$return = [];
 
 		foreach ( $posts as $post ) {
 			if ( ! $post instanceof WP_Post ) {
@@ -57,15 +57,15 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 				continue;
 			}
 
-			$return[] = array(
+			$return[] = [
 				'id'          => $post->ID,
 				'post_status' => $post->post_status,
 				'post_type'   => $post->post_type,
 				'title'       => $post->post_title,
 				'date'        => $post->post_date,
-				'thumb'       => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, array( 50, 50 ) ) : '',
+				'thumb'       => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, [ 50, 50 ] ) : '',
 				'link'        => get_permalink( $post->ID ),
-			);
+			];
 		}
 
 		if ( 'json' === $format ) {
