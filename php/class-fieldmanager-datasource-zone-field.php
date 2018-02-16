@@ -30,10 +30,10 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 		$items = $this->get_items( $fragment );
 		$items = $this->format_posts( $items );
 
-		$data = [
+		$data = array(
 			'success' => true,
-			'data'    => $items,
-		];
+			'data' => $items,
+		);
 
 		return $data;
 	}
@@ -43,10 +43,10 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	 *
 	 * @param array  $posts Array of post objects to format.
 	 * @param string $format Return format, either `json` or `array`.
-	 * @return mixed
+	 * @return array|false|string
 	 */
-	public function format_posts( array $posts, string $format = 'array' ) {
-		$return = [];
+	public function format_posts( $posts, $format = 'array' ) {
+		$return = array();
 
 		foreach ( $posts as $post ) {
 			if ( ! $post instanceof WP_Post ) {
@@ -57,15 +57,15 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 				continue;
 			}
 
-			$return[] = [
-				'id'          => $post->ID,
+			$return[] = array(
+				'id' => $post->ID,
 				'post_status' => $post->post_status,
-				'post_type'   => $post->post_type,
-				'title'       => $post->post_title,
-				'date'        => $post->post_date,
-				'thumb'       => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, [ 50, 50 ] ) : '',
-				'link'        => get_permalink( $post->ID ),
-			];
+				'post_type' => $post->post_type,
+				'title' => $post->post_title,
+				'date' => $post->post_date,
+				'thumb' => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, array( 50, 50 ) ) : '',
+				'link' => get_permalink( $post->ID ),
+			);
 		}
 
 		if ( 'json' === $format ) {
@@ -82,7 +82,7 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	 * @param array $query_args WP_Query arguments.
 	 * @return array
 	 */
-	public function prepare_datasource_items( array $posts, array $query_args ) : array {
+	public function prepare_datasource_items( $posts, $query_args ) {
 		// Back-compat excluded posts handling.
 		if ( isset( $query_args['post__not_in'] ) ) {
 			foreach ( $query_args['post__not_in'] as $excluded ) {
