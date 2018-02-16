@@ -337,7 +337,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 */
 	public function preload_alter_values( $values ) {
 		if ( ! empty( $this->datasource ) ) {
-			$values = $this->datasource->preload_alter_values( $this, $values );
+			return $this->datasource->preload_alter_values( $this, $values );
 		}
 
 		return $values;
@@ -351,25 +351,37 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 * @return int|array Sanitized values.
 	 */
 	public function presave( $values, $current_values = array() ) {
-		if ( is_array( $values ) ) {
-			// Fieldmanager_Field doesn't like it when $values is an array,
-			// so we need to replicate what it does here.
-			foreach ( $values as $value ) {
-				foreach ( $this->validate as $func ) {
-					if ( ! call_user_func( $func, $value ) ) {
-						$this->_failed_validation( sprintf(
-							__( 'Input "%1$s" is not valid for field "%2$s" ', 'fm-zones' ),
-							(string) $value,
-							$this->label
-						) );
-					}
-				}
+		if ( ! is_array( $values ) ) {
+			if ( ! empty( $this->datasource ) ) {
+				return $this->datasource->presave( $this, $values, $current_values );
 			}
 
-			return array_map( $this->sanitize, $values );
-		} else {
 			return parent::presave( $values, $current_values );
 		}
+
+		// Fieldmanager_Field doesn't like it when $values is an array,
+		// so we need to replicate what its validation here.
+		foreach ( $values as $value ) {
+			foreach ( $this->validate as $func ) {
+				if ( ! call_user_func( $func, $value ) ) {
+					$this->_failed_validation( sprintf(
+						__( 'Input "%1$s" is not valid for field "%2$s" ', 'fm-zones' ),
+						(string) $value,
+						$this->label
+					) );
+				}
+			}
+		}
+
+		if ( empty( $this->datasource ) ) {
+			return array_map( $this->sanitize, $values );
+		}
+
+		foreach ( $values as $key => $value ) {
+			$values[ $key ] = $this->datasource->presave( $this, $value, empty( $current_values[ $key ] ) ? array() : $current_values[ $key ] );
+		}
+
+		return $values;
 	}
 
 	/**
@@ -401,6 +413,10 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			}
 		}
 
-		return parent::presave_alter_values( $values, $current_values );
+		if ( empty( $this->datasource ) ) {
+			return parent::presave_alter_values( $values, $current_values );
+		}
+
+		return $this->datasource->presave_alter_values( $this, $values, $current_values );
 	}
 }
