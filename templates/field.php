@@ -29,7 +29,7 @@ if ( is_array( $value ) ) {
 				__( 'Search for %s', 'fm-zones' ),
 				apply_filters( 'fm-zones-content-label', __( 'content', 'fm-zones' ) )
 			) ); ?></label>
-		<input type="text" class="zone-post-search" id="<?php echo esc_attr( $this->get_element_id() ); ?>_search" <?php echo $this->get_element_autocomplete_attributes(); ?> />
+		<input type="text" class="zone-post-search" id="<?php echo esc_attr( $this->get_element_id() ); ?>_search" <?php echo $this->get_element_attributes(); ?> />
 		<p class="description"><?php
 			echo esc_html( sprintf(
 				__( 'Enter a term or phrase in the text box above to search for and add %s to this zone.', 'fm-zones' ),

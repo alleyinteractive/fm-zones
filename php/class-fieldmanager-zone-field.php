@@ -21,8 +21,6 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		'suppress_filters' => false,
 	);
 
-	public $autocomplete_attributes = array();
-
 	public $accept_from_other_zones = false;
 
 	public $ajax_args = array();
@@ -54,6 +52,30 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		}
 	}
 
+	/**
+	 * Provide back-compat for reading deprecated property
+	 *
+	 * @param string $property Deprecated property.
+	 * @return mixed
+	 */
+	public function __get( $property ) {
+		if ( 'autocomplete_attributes' === $property ) {
+			return $this->attributes;
+		}
+	}
+
+	/**
+	 * Provide back-compat for updating deprecated property
+	 *
+	 * @param string $property Deprecated property.
+	 * @param mixed  $value New property value.
+	 */
+	public function __set( $property, $value ) {
+		if ( 'autocomplete_attributes' === $property ) {
+			$this->attributes = $value;
+		}
+	}
+
 	public function assets() {
 		wp_enqueue_style( 'fm-zone-jquery-ui', FMZ_URL . '/static/jquery-ui/smoothness/jquery-ui.theme.css', false, FMZ_VERSION, 'all' );
 		wp_enqueue_style( 'fm-zone-styles', FMZ_URL . '/static/css/fm-zone.css', false, FMZ_VERSION, 'all' );
@@ -76,32 +98,26 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 	public function form_element( $value = null ) {
 		list( $context, $subcontext ) = fm_get_context();
-		$this->autocomplete_attributes['data-context'] = $context;
-		$this->autocomplete_attributes['data-subcontext'] = $subcontext;
-		$this->autocomplete_attributes['data-action'] = $this->get_ajax_action( $this->name );
-		$this->autocomplete_attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
-		$this->autocomplete_attributes['data-args'] = json_encode( $this->ajax_args );
+		$this->attributes['data-context'] = $context;
+		$this->attributes['data-subcontext'] = $subcontext;
+		$this->attributes['data-action'] = $this->get_ajax_action( $this->name );
+		$this->attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
+		$this->attributes['data-args'] = json_encode( $this->ajax_args );
 
 		return parent::form_element( $value );
 	}
 
 	/**
 	 * Generates an HTML attribute string based on the value of
-	 * $this->autocomplete_attributes.
+	 * $this->attributes.
 	 *
-	 * @see Fieldmanager_Field::$autocomplete_attributes
+	 * @see Fieldmanager_Field::$attributes
+	 * @deprecated
 	 * @return string HTML attributes ready to insert into an HTML tag.
 	 */
 	public function get_element_autocomplete_attributes() {
-		$attr_str = array();
-		foreach ( $this->autocomplete_attributes as $attr => $val ) {
-			if ( true === $val ) {
-				$attr_str[] = sanitize_key( $attr );
-			} else {
-				$attr_str[] = sprintf( '%s="%s"', sanitize_key( $attr ), esc_attr( $val ) );
-			}
-		}
-		return implode( ' ', $attr_str );
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.11', __CLASS__ . '::get_element_attributes' );
+		return $this->get_element_attributes();
 	}
 
 	/**
