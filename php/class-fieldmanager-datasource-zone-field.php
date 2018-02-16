@@ -27,6 +27,15 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	 * @return array
 	 */
 	public function get_items( $fragment = null ) {
+		if ( ! is_callable( $this->query_callback ) ) {
+			/**
+			 * Filter query arguments, for back-compat
+			 *
+			 * @param array $args An array of WP_Query arguments.
+			 */
+			$this->query_args = apply_filters( 'fm_zones_get_posts_query_args', $this->query_args );
+		}
+
 		$items = parent::get_items( $fragment );
 		return $this->prepare_datasource_items( $items );
 	}

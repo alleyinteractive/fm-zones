@@ -161,6 +161,8 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	/**
 	 * Get an array of posts matching default and given criteria.
 	 *
+	 * When a datasource is in use, $args is ignored.
+	 *
 	 * @todo limit to last year(?) by default for performance, make that an
 	 *       option.
 	 *
@@ -184,8 +186,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 			$posts = get_posts( $args );
 		} else {
-			$fragment = isset( $args['s'] ) ? $args['s'] : null;
-			$posts = $this->datasource->get_items( $fragment );
+			$posts = $this->datasource->get_items();
 		}
 
 		return $this->format_posts( $posts );
