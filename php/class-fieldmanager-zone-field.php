@@ -38,8 +38,22 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 		parent::__construct( $label, $options );
 
-		// Hook after the field has been fully constructed, which is on `init`.
-		add_action( 'wp_loaded', array( $this, 'hook_ajax_action' ) );
+		if ( empty( $this->datasource ) ) {
+			// Hook after the field has been fully constructed, which is on `init`.
+			add_action( 'wp_loaded', array( $this, 'hook_ajax_action' ) );
+		} else {
+			$datasource_provides_posts = $this->datasource instanceof Fieldmanager_Datasource_Post;
+			$datasource_provides_posts = apply_filters( 'fm_zone_datasource_provides_posts', $datasource_provides_posts );
+
+			if ( ! $datasource_provides_posts ) {
+				$message = esc_html__( 'You must supply a datasource that returns WP_Post objects.', 'fm-zones' );
+				if ( Fieldmanager_Field::$debug ) {
+					throw new FM_Developer_Exception( $message );
+				} else {
+					wp_die( $message, esc_html__( 'Unsupported Datasource', 'fieldmanager' ) );
+				}
+			}
+		}
 
 		// Only enqueue assets once per request
 		if ( ! self::$assets_enqueued ) {
@@ -100,9 +114,14 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		list( $context, $subcontext ) = fm_get_context();
 		$this->attributes['data-context'] = $context;
 		$this->attributes['data-subcontext'] = $subcontext;
-		$this->attributes['data-action'] = $this->get_ajax_action( $this->name );
-		$this->attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
-		$this->attributes['data-args'] = json_encode( $this->ajax_args );
+
+		if ( ! empty( $this->datasource ) ) {
+			$this->attributes['data-action'] = $this->datasource->get_ajax_action( $this->name );
+		} else {
+			$this->attributes['data-action'] = $this->get_ajax_action( $this->name );
+			$this->attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
+			$this->attributes['data-args'] = wp_json_encode( $this->ajax_args );
+		}
 
 		return parent::form_element( $value );
 	}
@@ -154,17 +173,34 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		);
 
 		/**
-		 * Filter the args for get_posts.
+		 * Filter query arguments
 		 *
-		 * @param array $args An array of arguments for get_posts or WP_Query.
+		 * @param array $args An array of WP_Query arguments.
 		 */
-		return $this->format_posts( get_posts( apply_filters( 'fm_zones_get_posts_query_args', $args ) ) );
+		$args = apply_filters( 'fm_zones_get_posts_query_args', $args );
+
+		if ( empty( $this->datasource ) ) {
+			$posts = get_posts( $args );
+		} else {
+			$posts = $this->datasource->get_items( $args['s'] ?? null );
+			$posts = $this->prepare_datasource_items( $posts, $args );
+		}
+
+		return $this->format_posts( $posts );
 	}
 
 	public function format_posts( $posts, $format = 'array' ) {
 		$return = array();
 
 		foreach ( $posts as $post ) {
+			if ( ! $post instanceof WP_Post ) {
+				if ( Fieldmanager_Field::$debug ) {
+					throw new FM_Developer_Exception( esc_html__( 'Datasource must return array of WP_Post objects.', 'fm-zones' ) );
+				}
+
+				continue;
+			}
+
 			/**
 			 * @todo filter this so that the output can be customized
 			 */
@@ -184,6 +220,29 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		} else {
 			return $return;
 		}
+	}
+
+	/**
+	 * Convert datasource items array to array of WP_Post objects
+	 *
+	 * @param array $posts Array keyed by post ID, value irrelevant.
+	 * @param array $query_args WP_Query arguments.
+	 * @return array
+	 */
+	public function prepare_datasource_items( array $posts, array $query_args ) : array {
+		// Back-compat excluded posts handling.
+		if ( isset( $query_args['post__not_in'] ) ) {
+			foreach ( $query_args['post__not_in'] as $excluded ) {
+				unset( $posts[ $excluded ] );
+			}
+		}
+
+		$posts = array_keys( $posts );
+		$posts = array_map( 'absint', $posts );
+		$posts = array_filter( $posts );
+		$posts = array_map( 'get_post', $posts );
+
+		return $posts;
 	}
 
 	public function get_current_posts_json( $ids ) {
@@ -289,6 +348,20 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		if ( $this->accept_from_other_zones ) {
 			echo ' fm-zone-posts-connected';
 		}
+	}
+
+	/**
+	 * Offload preloading values to datasource
+	 *
+	 * @param array $values Values to alter.
+	 * @return array
+	 */
+	public function preload_alter_values( $values ) {
+		if ( ! empty( $this->datasource ) ) {
+			$values = $this->datasource->preload_alter_values( $this, $values );
+		}
+
+		return $values;
 	}
 
 	/**
