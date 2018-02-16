@@ -184,7 +184,8 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		if ( empty( $this->datasource ) ) {
 			$posts = get_posts( $args );
 		} else {
-			$posts = $this->datasource->get_items( $args['s'] ?? null );
+			$fragment = isset( $args['s'] ) ? $args['s'] : null;
+			$posts = $this->datasource->get_items( $fragment );
 		}
 
 		return $this->format_posts( $posts );
