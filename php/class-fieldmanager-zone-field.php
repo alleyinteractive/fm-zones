@@ -174,16 +174,26 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			$args
 		);
 
-		/**
-		 * Filter query arguments
-		 *
-		 * @param array $args An array of WP_Query arguments.
-		 */
-		$args = apply_filters( 'fm_zones_get_posts_query_args', $args );
-
 		if ( empty( $this->datasource ) ) {
+			/**
+			 * Filter query arguments
+			 *
+			 * @param array $args An array of WP_Query arguments.
+			 */
+			$args = apply_filters( 'fm_zones_get_posts_query_args', $args );
+
 			$posts = get_posts( $args );
 		} else {
+			// Prevent datasource from returning already-selected IDs, if we can.
+			if ( isset( $args['post__not_in'] ) && isset( $this->datasource->query_args ) ) {
+				$excluded = isset( $this->datasource->query_args['post__not_in'] ) ? $this->datasource->query_args['post__not_in'] : array();
+				$excluded = array_merge( $excluded, $args['post__not_in'] );
+
+				if ( ! empty( $excluded ) ) {
+					$this->datasource->query_args['post__not_in'] = $excluded;
+				}
+			}
+
 			$fragment = isset( $args['s'] ) ? $args['s'] : null;
 			$posts = $this->datasource->get_items( $fragment );
 		}
