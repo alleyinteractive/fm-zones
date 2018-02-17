@@ -51,6 +51,9 @@ before_script:
     if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
       npm install
       composer install
+      export PATH=$PATH:${PWD}/vendor/bin/
+      # After CodeSniffer install you should refresh your path.
+      phpenv rehash
     fi
 
 script:
