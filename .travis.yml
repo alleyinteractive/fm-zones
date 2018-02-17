@@ -33,6 +33,9 @@ before_script:
   # Turn off Xdebug. See https://core.trac.wordpress.org/changeset/40138.
   - phpenv config-rm xdebug.ini || echo "Xdebug not available"
 
+  # Plugin dependency
+  - git clone https://github.com/alleyinteractive/wordpress-fieldmanager.git /tmp/wordpress/wp-content/plugins/wordpress-fieldmanager
+
   - |
     if [[ ! -z "$WP_VERSION" ]] ; then
       bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
