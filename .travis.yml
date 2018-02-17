@@ -64,10 +64,6 @@ script:
       phpunit -c multisite.xml
     fi
   - |
-    if [[ ! -z "$WP_VERSION" ]] ; then
-      grunt qunit:specific --wp=$WP_VERSION
-    fi
-  - |
     if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
-      grunt phpcs
+      phpcs -p -s -v -n --standard=./codesniffer.ruleset.xml --extensions=php .
     fi
