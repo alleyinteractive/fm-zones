@@ -27,15 +27,32 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	 * @return array
 	 */
 	public function get_items( $fragment = null ) {
-		if ( ! is_callable( $this->query_callback ) ) {
-			/**
-			 * Filter query arguments, for back-compat
-			 *
-			 * @param array $args An array of WP_Query arguments.
-			 */
-			$this->query_args = apply_filters( 'fm_zones_get_posts_query_args', $this->query_args );
+		if ( is_callable( $this->query_callback ) ) {
+			return $this->do_get_items( $fragment );
 		}
 
+		/**
+		 * Filter query arguments, for back-compat
+		 *
+		 * @param array $args An array of WP_Query arguments.
+		 */
+		$this->query_args = apply_filters( 'fm_zones_get_posts_query_args', $this->query_args );
+
+		// Backcompat sorting.
+		if ( ! isset( $this->query_args['orderby'] ) || empty( $this->query_args['orderby'] ) ) {
+			$this->query_args['orderby'] = 'relevance';
+		}
+
+		return $this->do_get_items( $fragment );
+	}
+
+	/**
+	 * Get results and ensure format matches what field expects
+	 *
+	 * @param string $fragment Search term.
+	 * @return array
+	 */
+	protected function do_get_items( $fragment ) {
 		$items = parent::get_items( $fragment );
 		return $this->prepare_datasource_items( $items );
 	}
