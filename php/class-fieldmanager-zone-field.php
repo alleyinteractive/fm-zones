@@ -4,9 +4,21 @@
  * Zoninator Act-Alike Fieldmanager Field
  */
 class Fieldmanager_Zone_Field extends Fieldmanager_Field {
-
+	/**
+	 * Unused
+	 *
+	 * @deprecated
+	 * @var null
+	 */
 	private $field_id;
 
+	/**
+	 * Legacy WP_Query args array
+	 *
+	 * Offloaded to datasource for back-compat
+	 *
+	 * @var array
+	 */
 	public $query_args = array();
 
 	/**
@@ -21,16 +33,47 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		'suppress_filters' => false,
 	);
 
+	/**
+	 * Accept posts from another zone?
+	 *
+	 * @var bool
+	 */
 	public $accept_from_other_zones = false;
 
+	/**
+	 * Legacy Ajax arguments array
+	 *
+	 * @var array
+	 */
 	public $ajax_args = array();
 
+	/**
+	 * How many posts should does this zone accept?
+	 *
+	 * @var int
+	 */
 	public $post_limit = 0;
 
+	/**
+	 * How many placeholder slots to show
+	 *
+	 * @var int
+	 */
 	public $placeholders = 0;
 
+	/**
+	 * Have assets been enqueued?
+	 *
+	 * @var bool
+	 */
 	public static $assets_enqueued = false;
 
+	/**
+	 * Set up field
+	 *
+	 * @param string $label
+	 * @param array  $options
+	 */
 	public function __construct( $label = '', $options = array() ) {
 		$this->template = FMZ_PATH . '/templates/field.php';
 		$this->multiple = true;
@@ -95,6 +138,9 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		}
 	}
 
+	/**
+	 * Enqueue field's static assets
+	 */
 	public function assets() {
 		wp_enqueue_style( 'fm-zone-jquery-ui', FMZ_URL . '/static/jquery-ui/smoothness/jquery-ui.theme.css', false, FMZ_VERSION, 'all' );
 		wp_enqueue_style( 'fm-zone-styles', FMZ_URL . '/static/css/fm-zone.css', false, FMZ_VERSION, 'all' );
@@ -145,7 +191,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 *
 	 * @param  array  $except Post IDs to exclude, because they're already
 	 *                        in the zone.
-	 * @return array {@see Fieldmanager_Zone_Field::format_posts()}
+	 * @return array {@see Fieldmanager_Datasource_Zone_Field::format_posts()}
 	 */
 	public function get_recent_posts( $except = array() ) {
 		return $this->get_posts( array(
@@ -164,7 +210,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 *       option.
 	 *
 	 * @param  array  $args WP_Query args
-	 * @return array {@see Fieldmanager_Zone_Field::format_posts()}
+	 * @return array {@see Fieldmanager_Datasource_Zone_Field::format_posts()}
 	 */
 	public function get_posts( $args = array() ) {
 		$args = array_merge(
@@ -173,9 +219,25 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			$args
 		);
 
+		$this->query_args = $args;
+		add_filter( 'fm_zones_get_posts_query_args', array( $this, 'set_query_args' ), 9 );
+
 		$posts = $this->datasource->get_items();
 
+		$this->query_args = null;
+		remove_filter( 'fm_zones_get_posts_query_args', array( $this, 'set_query_args' ), 9 );
+
 		return $this->datasource->format_posts( $posts );
+	}
+
+	/**
+	 * Force datasource query arguments
+	 *
+	 * @param array $query_args WP_Query arguments.
+	 * @return array
+	 */
+	public function set_query_args( $query_args ) {
+		return $this->query_args;
 	}
 
 	/**
@@ -191,6 +253,12 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		return $this->datasource->format_posts( $posts, $format );
 	}
 
+	/**
+	 * Format an array of post IDs
+	 *
+	 * @param array $ids Array of post IDs to format
+	 * @return array
+	 */
 	public function get_current_posts_json( $ids ) {
 		if ( empty( $ids ) ) {
 			return '[]';
@@ -221,17 +289,15 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		return '';
 	}
 
+	/**
+	 * Get field's HTML ID
+	 *
+	 * @deprecated
+	 * @return string
+	 */
 	public function get_field_id() {
-		if ( ! $this->field_id ) {
-			$el = $this;
-			$id_slugs = array();
-			while ( $el ) {
-				array_unshift( $id_slugs, $el->name );
-				$el = $el->parent;
-			}
-			$this->field_id = 'fm-' . implode( '-', $id_slugs );
-		}
-		return $this->field_id;
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.12', __CLASS__ . '::get_element_id' );
+		return $this->get_element_id();
 	}
 
 	/**
@@ -243,6 +309,9 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		_deprecated_function( __METHOD__, 'fm-zones-0.1.12' );
 	}
 
+	/**
+	 * Add class to indicate this zone accepts posts from another
+	 */
 	public function maybe_connect() {
 		if ( $this->accept_from_other_zones ) {
 			echo ' fm-zone-posts-connected';
