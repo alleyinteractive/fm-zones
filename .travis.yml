@@ -55,6 +55,7 @@ before_script:
 
   # Plugin dependencies
   - git clone https://github.com/alleyinteractive/wordpress-fieldmanager.git /tmp/wordpress/wp-content/plugins/wordpress-fieldmanager
+  - export FM_DIR=/tmp/wordpress/wp-content/plugins/wordpress-fieldmanager
 
 script:
   - find . -path ./vendor -prune -o -type "f" -iname "*.php" | xargs -L "1" php -l
