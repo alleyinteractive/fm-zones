@@ -204,8 +204,6 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	/**
 	 * Get an array of posts matching default and given criteria.
 	 *
-	 * When a datasource is in use, $args is ignored.
-	 *
 	 * @todo limit to last year(?) by default for performance, make that an
 	 *       option.
 	 *
@@ -257,25 +255,24 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 * Format an array of post IDs
 	 *
 	 * @param array $ids Array of post IDs to format
-	 * @return array
+	 * @return string
 	 */
 	public function get_current_posts_json( $ids ) {
 		if ( empty( $ids ) ) {
-			return '[]';
-		} else {
-			return $this->datasource->format_posts(
-				get_posts( array(
-					'post__in' => $ids,
-					'post_status' => 'any',
-					'post_type' => get_post_types(),
-					'orderby' => 'post__in',
-					'order' => 'asc',
-					'posts_per_page' => count( $ids ),
-					'suppress_filters' => false,
-				) ),
-				'json'
-			);
+			return wp_json_encode( array() );
 		}
+
+		$posts = get_posts( array(
+			'post__in' => $ids,
+			'post_status' => 'any',
+			'post_type' => 'any',
+			'orderby' => 'post__in',
+			'order' => 'asc',
+			'posts_per_page' => count( $ids ),
+			'suppress_filters' => false,
+		) );
+
+		return $this->datasource->format_posts( $posts, 'json' );
 	}
 
 	/**
