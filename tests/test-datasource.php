@@ -68,10 +68,28 @@ class Test_Fieldmanager_Datasource_Zone_Field extends WP_UnitTestCase {
 	}
 
 	public function test_query_filter() {
-		$this->markTestIncomplete();
+		$unfiltered = $this->datasource->get_items();
+		$this->assertEquals( 4, count( $unfiltered ) );
+
+		add_filter( 'fm_zones_get_posts_query_args', function( $query_args ) {
+			$query_args['post__not_in'] = array( $this->post_id );
+			return $query_args;
+		} );
+
+		$filtered = $this->datasource->get_items();
+		$this->assertEquals( 3, count( $filtered ) );
 	}
 
 	public function test_exclude_posts() {
-		$this->markTestIncomplete();
+		$_REQUEST['exclude'] = array(
+			$this->post_id,
+		);
+
+		$items = $this->datasource->get_items();
+
+		$ids = wp_list_pluck( $items, 'ID' );
+
+		$this->assertEquals( 3, count( $items ) );
+		$this->assertEquals( false, in_array( $this->post_id, $ids, true ), __( 'Failed asserting that excluded post was excluded.', 'fm-zones' ) );
 	}
 }
