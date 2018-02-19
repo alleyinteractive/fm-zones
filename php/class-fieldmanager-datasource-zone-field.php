@@ -95,13 +95,13 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 			}
 
 			$return[] = array(
-				'id' => $post->ID,
+				'id'          => $post->ID,
 				'post_status' => $post->post_status,
-				'post_type' => $post->post_type,
-				'title' => $post->post_title,
-				'date' => $post->post_date,
-				'thumb' => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, array( 50, 50 ) ) : '',
-				'link' => get_permalink( $post->ID ),
+				'post_type'   => $post->post_type,
+				'title'       => $post->post_title,
+				'date'        => $post->post_date,
+				'thumb'       => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, array( 50, 50 ) ) : '',
+				'link'        => get_permalink( $post->ID ),
 			);
 		}
 
