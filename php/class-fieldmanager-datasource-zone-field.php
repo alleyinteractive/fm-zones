@@ -88,7 +88,7 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 
 		$data = array(
 			'success' => true,
-			'data' => $items,
+			'data'    => $items,
 		);
 
 		return $data;
@@ -153,7 +153,7 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	/**
 	 * Exclude already-chosen posts
 	 *
-	 * @param $excluded Post IDs already in use.
+	 * @param array $excluded Post IDs already in use.
 	 * @return array
 	 */
 	public function set_excluded_posts( $excluded ) {
