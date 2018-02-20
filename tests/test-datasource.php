@@ -92,4 +92,34 @@ class Test_Fieldmanager_Datasource_Zone_Field extends WP_UnitTestCase {
 		$this->assertEquals( 3, count( $items ) );
 		$this->assertEquals( false, in_array( $this->post_id, $ids, true ), __( 'Failed asserting that excluded post was excluded.', 'fm-zones' ) );
 	}
+
+	public function test_query_restoration() {
+		$expected = array(
+			'post_type'      => 'page',
+			'posts_per_page' => 2,
+		);
+
+		$datasource = new Fieldmanager_Datasource_Zone_Field( array(
+			'query_args' => $expected,
+		) );
+
+		$items = $datasource->get_items();
+
+		$this->assertEquals( 0, count( $items ) );
+		$this->assertEquals( $expected, $datasource->query_args );
+
+		add_filter( 'fm_zones_get_posts_query_args', '__return_empty_array' );
+
+		$items = $datasource->get_items();
+
+		// Can't check that the query args changed, so we observe the results.
+		$this->assertEquals( 4, count( $items ) );
+
+		remove_filter( 'fm_zones_get_posts_query_args', '__return_empty_array' );
+
+		$items = $datasource->get_items();
+
+		$this->assertEquals( 0, count( $items ) );
+		$this->assertEquals( $expected, $datasource->query_args );
+	}
 }
