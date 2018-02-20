@@ -213,7 +213,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	public function get_posts( $args = array() ) {
 		$args = array_merge(
 			$this->default_args,
-			$this->query_args,
+			$this->datasource->query_args,
 			$args
 		);
 

@@ -10,6 +10,16 @@
  */
 class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 	/**
+	 * Unmodified query args
+	 *
+	 * Used to restore original query args after filtering
+	 * for specific datasource request.
+	 *
+	 * @var array|null
+	 */
+	protected $original_query_args = null;
+
+	/**
 	 * Set up the datasource
 	 *
 	 * @param array $options Datasource options.
@@ -34,8 +44,12 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 		/**
 		 * Filter query arguments, for back-compat
 		 *
+		 * Original query arguments are retained and restored
+		 * to make the filter behave as if it's datasource-specific.
+		 *
 		 * @param array $args An array of WP_Query arguments.
 		 */
+		$this->original_query_args = $this->query_args;
 		$this->query_args = apply_filters( 'fm_zones_get_posts_query_args', $this->query_args );
 
 		// Backcompat sorting.
@@ -43,7 +57,12 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 			$this->query_args['orderby'] = 'relevance';
 		}
 
-		return $this->do_get_items( $fragment );
+		$items = $this->do_get_items( $fragment );
+
+		$this->query_args = $this->original_query_args;
+		$this->original_query_args = null;
+
+		return $items;
 	}
 
 	/**
