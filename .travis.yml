@@ -14,28 +14,60 @@ branches:
 matrix:
   include:
     - php: 5.6
-      env: WP_VERSION=latest PHP_LINT=1
-    - php: 7.0
-      env: WP_VERSION=latest PHP_LINT=1
+      env: WP_VERSION=latest
     - php: 5.6
-      env: WP_VERSION=nightly WP_PHPCS=1
+      env: WP_TRAVISCI=phpcs
+    - php: 7.0
+      env: WP_VERSION=latest
+    - php: 7.0
+      env: WP_VERSION=nightly
+    - php: 7.1
+      env: WP_VERSION=latest
+    - php: 7.2
+      env: WP_VERSION=latest
   fast_finish: true
+  allow_failures:
+    - php: 7.2
 
 before_script:
+  # Turn off Xdebug. See https://core.trac.wordpress.org/changeset/40138.
+  - phpenv config-rm xdebug.ini || echo "Xdebug not available"
+
   - |
     if [[ ! -z "$WP_VERSION" ]] ; then
       bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+      npm install
+      export PATH="$HOME/.composer/vendor/bin:$PATH"
+      if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+        composer global require "phpunit/phpunit=5.7.*"
+      else
+        composer global require "phpunit/phpunit=4.8.*"
+      fi
     fi
   - |
-    if [[ "$WP_PHPCS" == "1" ]]; then
+    if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
+      npm install
       composer install
       export PATH=$PATH:${PWD}/vendor/bin/
       # After CodeSniffer install you should refresh your path.
       phpenv rehash
     fi
 
+  # Plugin dependencies
+  - git clone https://github.com/alleyinteractive/wordpress-fieldmanager.git /tmp/wordpress/wp-content/plugins/wordpress-fieldmanager
+  - export FM_DIR=/tmp/wordpress/wp-content/plugins/wordpress-fieldmanager
+
 script:
-  - if [[ "$PHP_LINT" == "1" ]]; then find . -type "f" -iname "*.php" | xargs -L "1" php -l; fi
-  - if [[ "$WP_PHPCS" == "1" ]]; then phpcs -p -s -v -n --standard=./codesniffer.ruleset.xml --extensions=php .; fi
-  - phpunit
-  - phpunit -c multisite.xml
+  - find . -path ./vendor -prune -o -type "f" -iname "*.php" | xargs -L "1" php -l
+  - |
+    if [[ ! -z "$WP_VERSION" ]] ; then
+      phpunit
+    fi
+  - |
+    if [[ ! -z "$WP_VERSION" ]] ; then
+      phpunit -c multisite.xml
+    fi
+  - |
+    if [[ "$WP_TRAVISCI" == "phpcs" ]] ; then
+      phpcs -p -s -v -n --standard=./codesniffer.ruleset.xml --extensions=php .
+    fi

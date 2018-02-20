@@ -1,6 +1,17 @@
 <?php
+/**
+ * Bootstrap the testing environment
+ *
+ * Uses wordpress tests (http://github.com/nb/wordpress-tests/) which uses
+ * PHPUnit.
+ *
+ * Note: Do note change the name of this file. PHPUnit will automatically fire
+ * this file when run.
+ *
+ * @package Fieldmanager
+ */
 
-$_tests_dir = getenv( 'WP_TESTS_DIR' );
+$_tests_dir = getenv('WP_TESTS_DIR');
 if ( ! $_tests_dir ) {
 	$_tests_dir = '/tmp/wordpress-tests-lib';
 }
@@ -8,8 +19,13 @@ if ( ! $_tests_dir ) {
 require_once $_tests_dir . '/includes/functions.php';
 
 function _manually_load_plugin() {
-	$plugin_dir = dirname( __DIR__ );
-	require $plugin_dir . '/fm-zones.php';
+	$_fm_dir = getenv( 'FM_DIR' );
+	if ( empty( $_fm_dir ) ) {
+		$_fm_dir = dirname( __FILE__ ) . '/../../wordpress-fieldmanager';
+	}
+	require $_fm_dir . '/fieldmanager.php';
+
+	require dirname( __FILE__ ) . '/../fm-zones.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 

@@ -4,9 +4,21 @@
  * Zoninator Act-Alike Fieldmanager Field
  */
 class Fieldmanager_Zone_Field extends Fieldmanager_Field {
-
+	/**
+	 * Unused
+	 *
+	 * @deprecated
+	 * @var null
+	 */
 	private $field_id;
 
+	/**
+	 * Legacy WP_Query args array
+	 *
+	 * Offloaded to datasource for back-compat
+	 *
+	 * @var array
+	 */
 	public $query_args = array();
 
 	/**
@@ -21,18 +33,47 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		'suppress_filters' => false,
 	);
 
-	public $autocomplete_attributes = array();
-
+	/**
+	 * Accept posts from another zone?
+	 *
+	 * @var bool
+	 */
 	public $accept_from_other_zones = false;
 
+	/**
+	 * Legacy Ajax arguments array
+	 *
+	 * @var array
+	 */
 	public $ajax_args = array();
 
+	/**
+	 * How many posts should does this zone accept?
+	 *
+	 * @var int
+	 */
 	public $post_limit = 0;
 
+	/**
+	 * How many placeholder slots to show
+	 *
+	 * @var int
+	 */
 	public $placeholders = 0;
 
+	/**
+	 * Have assets been enqueued?
+	 *
+	 * @var bool
+	 */
 	public static $assets_enqueued = false;
 
+	/**
+	 * Set up field
+	 *
+	 * @param string $label
+	 * @param array  $options
+	 */
 	public function __construct( $label = '', $options = array() ) {
 		$this->template = FMZ_PATH . '/templates/field.php';
 		$this->multiple = true;
@@ -40,8 +81,27 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 
 		parent::__construct( $label, $options );
 
-		// Hook after the field has been fully constructed, which is on `init`.
-		add_action( 'wp_loaded', array( $this, 'hook_ajax_action' ) );
+		// Gracefully handle implementations preceding datasource support.
+		if ( empty( $this->datasource ) ) {
+			$this->datasource = new Fieldmanager_Datasource_Zone_Field( array(
+				'query_args' => $this->query_args,
+			) );
+
+			$this->query_args = array();
+		} else {
+			$datasource_provides_posts = $this->datasource instanceof Fieldmanager_Datasource_Post;
+			$datasource_provides_posts = (bool) apply_filters( 'fm_zone_datasource_provides_posts', $datasource_provides_posts );
+
+			if ( ! $datasource_provides_posts ) {
+				/* translators: 1: Filter tag. */
+				$message = esc_html( sprintf( __( 'You must specify a datasource that returns WP_Post objects. Use the \'%s\' filter to indicate that a custom datasource returns post objects.', 'fm-zones' ), 'fm_zone_datasource_provides_posts' ) );
+				if ( Fieldmanager_Field::$debug ) {
+					throw new FM_Developer_Exception( $message );
+				} else {
+					wp_die( $message, esc_html__( 'Unsupported Datasource', 'fieldmanager' ) );
+				}
+			}
+		}
 
 		// Only enqueue assets once per request
 		if ( ! self::$assets_enqueued ) {
@@ -54,6 +114,33 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		}
 	}
 
+	/**
+	 * Provide back-compat for reading deprecated property
+	 *
+	 * @param string $property Deprecated property.
+	 * @return mixed
+	 */
+	public function __get( $property ) {
+		if ( 'autocomplete_attributes' === $property ) {
+			return $this->attributes;
+		}
+	}
+
+	/**
+	 * Provide back-compat for updating deprecated property
+	 *
+	 * @param string $property Deprecated property.
+	 * @param mixed  $value New property value.
+	 */
+	public function __set( $property, $value ) {
+		if ( 'autocomplete_attributes' === $property ) {
+			$this->attributes = $value;
+		}
+	}
+
+	/**
+	 * Enqueue field's static assets
+	 */
 	public function assets() {
 		wp_enqueue_style( 'fm-zone-jquery-ui', FMZ_URL . '/static/jquery-ui/smoothness/jquery-ui.theme.css', false, FMZ_VERSION, 'all' );
 		wp_enqueue_style( 'fm-zone-styles', FMZ_URL . '/static/css/fm-zone.css', false, FMZ_VERSION, 'all' );
@@ -65,43 +152,36 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	}
 
 	/**
-	 * Hook into the ajax action for this field.
+	 * Deprecated Ajax hook
 	 *
-	 * This is done after the field has been defined so we have access to the
-	 * field's ancestors.
+	 * @deprecated
 	 */
 	public function hook_ajax_action() {
-		add_action( 'wp_ajax_' . $this->get_ajax_action(), array( $this, 'ajax_request' ) );
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.12' );
 	}
 
 	public function form_element( $value = null ) {
 		list( $context, $subcontext ) = fm_get_context();
-		$this->autocomplete_attributes['data-context'] = $context;
-		$this->autocomplete_attributes['data-subcontext'] = $subcontext;
-		$this->autocomplete_attributes['data-action'] = $this->get_ajax_action( $this->name );
-		$this->autocomplete_attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
-		$this->autocomplete_attributes['data-args'] = json_encode( $this->ajax_args );
+		$this->attributes['data-context'] = $context;
+		$this->attributes['data-subcontext'] = $subcontext;
+		$this->attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
+		$this->attributes['data-action'] = $this->datasource->get_ajax_action( $this->name );
+		$this->attributes['data-use-datasource'] = 1;
 
 		return parent::form_element( $value );
 	}
 
 	/**
 	 * Generates an HTML attribute string based on the value of
-	 * $this->autocomplete_attributes.
+	 * $this->attributes.
 	 *
-	 * @see Fieldmanager_Field::$autocomplete_attributes
+	 * @see Fieldmanager_Field::$attributes
+	 * @deprecated
 	 * @return string HTML attributes ready to insert into an HTML tag.
 	 */
 	public function get_element_autocomplete_attributes() {
-		$attr_str = array();
-		foreach ( $this->autocomplete_attributes as $attr => $val ) {
-			if ( true === $val ) {
-				$attr_str[] = sanitize_key( $attr );
-			} else {
-				$attr_str[] = sprintf( '%s="%s"', sanitize_key( $attr ), esc_attr( $val ) );
-			}
-		}
-		return implode( ' ', $attr_str );
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.12', __CLASS__ . '::get_element_attributes' );
+		return $this->get_element_attributes();
 	}
 
 	/**
@@ -111,7 +191,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 *
 	 * @param  array  $except Post IDs to exclude, because they're already
 	 *                        in the zone.
-	 * @return array {@see Fieldmanager_Zone_Field::format_posts()}
+	 * @return array {@see Fieldmanager_Datasource_Zone_Field::format_posts()}
 	 */
 	public function get_recent_posts( $except = array() ) {
 		return $this->get_posts( array(
@@ -128,7 +208,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 *       option.
 	 *
 	 * @param  array  $args WP_Query args
-	 * @return array {@see Fieldmanager_Zone_Field::format_posts()}
+	 * @return array {@see Fieldmanager_Datasource_Zone_Field::format_posts()}
 	 */
 	public function get_posts( $args = array() ) {
 		$args = array_merge(
@@ -137,142 +217,112 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			$args
 		);
 
-		/**
-		 * Filter the args for get_posts.
-		 *
-		 * @param array $args An array of arguments for get_posts or WP_Query.
-		 */
-		return $this->format_posts( get_posts( apply_filters( 'fm_zones_get_posts_query_args', $args ) ) );
+		$this->query_args = $args;
+		add_filter( 'fm_zones_get_posts_query_args', array( $this, 'set_query_args' ), 9 );
+
+		$posts = $this->datasource->get_items();
+
+		$this->query_args = null;
+		remove_filter( 'fm_zones_get_posts_query_args', array( $this, 'set_query_args' ), 9 );
+
+		return $this->datasource->format_posts( $posts );
 	}
 
+	/**
+	 * Force datasource query arguments
+	 *
+	 * @param array $query_args WP_Query arguments.
+	 * @return array
+	 */
+	public function set_query_args( $query_args ) {
+		return $this->query_args;
+	}
+
+	/**
+	 * Format post data for display
+	 *
+	 * @deprecated
+	 * @param array  $posts Array of post objects to format.
+	 * @param string $format Return format, either `json` or `array`.
+	 * @return mixed
+	 */
 	public function format_posts( $posts, $format = 'array' ) {
-		$return = array();
-
-		foreach ( $posts as $post ) {
-			/**
-			 * @todo filter this so that the output can be customized
-			 */
-			$return[] = array(
-				'id'     => $post->ID,
-				'post_status' => $post->post_status,
-				'post_type'   => $post->post_type,
-				'title'  => $post->post_title,
-				'date'   => $post->post_date,
-				'thumb'  => has_post_thumbnail( $post->ID ) ? get_the_post_thumbnail_url( $post->ID, array( 50, 50 ) ) : '',
-				'link'   => get_permalink( $post->ID ),
-			);
-		}
-
-		if ( 'json' == $format ) {
-			return wp_json_encode( $return );
-		} else {
-			return $return;
-		}
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.12', __CLASS__ . '->datasource->format_posts' );
+		return $this->datasource->format_posts( $posts, $format );
 	}
 
+	/**
+	 * Format an array of post IDs
+	 *
+	 * @param array $ids Array of post IDs to format
+	 * @return string
+	 */
 	public function get_current_posts_json( $ids ) {
 		if ( empty( $ids ) ) {
-			return '[]';
-		} else {
-			return $this->format_posts(
-				get_posts( array(
-					'post__in' => $ids,
-					'post_status' => 'any',
-					'post_type' => get_post_types(),
-					'orderby' => 'post__in',
-					'order' => 'asc',
-					'posts_per_page' => count( $ids ),
-					'suppress_filters' => false,
-				) ),
-				'json'
-			);
+			return wp_json_encode( array() );
 		}
+
+		$posts = get_posts( array(
+			'post__in' => $ids,
+			'post_status' => 'any',
+			'post_type' => 'any',
+			'orderby' => 'post__in',
+			'order' => 'asc',
+			'posts_per_page' => count( $ids ),
+			'suppress_filters' => false,
+		) );
+
+		return $this->datasource->format_posts( $posts, 'json' );
 	}
 
+	/**
+	 * Get Ajax action
+	 *
+	 * @deprecated
+	 * @return string
+	 */
 	public function get_ajax_action() {
-		return $this->get_field_id() . '_search_ajax';
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.12' );
+		return '';
 	}
 
+	/**
+	 * Get field's HTML ID
+	 *
+	 * @deprecated
+	 * @return string
+	 */
 	public function get_field_id() {
-		if ( ! $this->field_id ) {
-			$el = $this;
-			$id_slugs = array();
-			while ( $el ) {
-				array_unshift( $id_slugs, $el->name );
-				$el = $el->parent;
-			}
-			$this->field_id = 'fm-' . implode( '-', $id_slugs );
-		}
-		return $this->field_id;
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.12', __CLASS__ . '::get_element_id' );
+		return $this->get_element_id();
 	}
 
+	/**
+	 * Handle Ajax request
+	 *
+	 * @deprecated
+	 */
 	public function ajax_request() {
-		check_ajax_referer( 'fm_search_nonce', '_nonce' );
-
-		if ( empty( $_POST['term'] ) ) {
-			wp_send_json_error( __( 'Search term is empty!', 'fm-zones' ) );
-		}
-
-		$term = sanitize_text_field( wp_unslash( $_POST['term'] ) );
-		$args = array(
-			's' => $term,
-			'orderby' => 'relevance',
-		);
-		if ( ! empty( $_POST['exclude'] ) ) {
-			$args['post__not_in'] = array_map( 'intval', (array) $_POST['exclude'] );
-		}
-
-		// Support searching by URL/ID.
-		$post_id = null;
-		if ( preg_match( '/^https?\:/i', $term ) ) {
-			$url = esc_url( $term );
-			$url_parts = parse_url( $url );
-
-			if ( ! empty( $url_parts['query'] ) ) {
-				$get_vars = array();
-				parse_str( $url_parts['query'], $get_vars );
-			}
-
-			if ( ! empty( $get_vars['post'] ) ) {
-				$post_id = intval( $get_vars['post'] );
-			} elseif ( ! empty( $get_vars['p'] ) ) {
-				$post_id = intval( $get_vars['p'] );
-			} else {
-				$post_id = fm_url_to_post_id( $term );
-			}
-		} elseif ( is_numeric( $term ) ) {
-			$post_id = intval( $term );
-		}
-
-		// If a specific post ID was matched.
-		if ( ! empty( $post_id ) ) {
-			$exact_post = get_post( $post_id );
-			$query_args = array_merge(
-				$this->default_args,
-				$this->query_args
-			);
-
-			if (
-				$exact_post instanceof WP_Post &&
-				(
-					'any' === $query_args['post_type'] ||
-					$query_args['post_type'] === $exact_post->post_type ||
-					in_array( $exact_post->post_type, (array) $query_args['post_type'], true )
-				)
-			) {
-				wp_send_json_success( $this->format_posts( [ $exact_post ] ) );
-			}
-		}
-
-		$posts = $this->get_posts( $args );
-
-		wp_send_json_success( $posts );
+		_deprecated_function( __METHOD__, 'fm-zones-0.1.12' );
 	}
 
+	/**
+	 * Add class to indicate this zone accepts posts from another
+	 */
 	public function maybe_connect() {
 		if ( $this->accept_from_other_zones ) {
 			echo ' fm-zone-posts-connected';
 		}
+	}
+
+	/**
+	 * Offload preloading values to datasource
+	 *
+	 * @param array $values Values to alter.
+	 * @return array
+	 */
+	public function preload_alter_values( $values ) {
+		return $this->datasource->preload_alter_values( $this, $values );
 	}
 
 	/**
@@ -283,25 +333,29 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	 * @return int|array Sanitized values.
 	 */
 	public function presave( $values, $current_values = array() ) {
-		if ( is_array( $values ) ) {
-			// Fieldmanager_Field doesn't like it when $values is an array,
-			// so we need to replicate what it does here.
-			foreach ( $values as $value ) {
-				foreach ( $this->validate as $func ) {
-					if ( ! call_user_func( $func, $value ) ) {
-						$this->_failed_validation( sprintf(
-							__( 'Input "%1$s" is not valid for field "%2$s" ', 'fm-zones' ),
-							(string) $value,
-							$this->label
-						) );
-					}
+		if ( ! is_array( $values ) ) {
+			return $this->datasource->presave( $this, $values, $current_values );
+		}
+
+		// Fieldmanager_Field doesn't like it when $values is an array,
+		// so we need to replicate what its validation here.
+		foreach ( $values as $value ) {
+			foreach ( $this->validate as $func ) {
+				if ( ! call_user_func( $func, $value ) ) {
+					$this->_failed_validation( sprintf(
+						__( 'Input "%1$s" is not valid for field "%2$s" ', 'fm-zones' ),
+						(string) $value,
+						$this->label
+					) );
 				}
 			}
-
-			return array_map( $this->sanitize, $values );
-		} else {
-			return parent::presave( $values, $current_values );
 		}
+
+		foreach ( $values as $key => $value ) {
+			$values[ $key ] = $this->datasource->presave( $this, $value, empty( $current_values[ $key ] ) ? array() : $current_values[ $key ] );
+		}
+
+		return $values;
 	}
 
 	/**
@@ -333,6 +387,6 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			}
 		}
 
-		return parent::presave_alter_values( $values, $current_values );
+		return $this->datasource->presave_alter_values( $this, $values, $current_values );
 	}
 }
