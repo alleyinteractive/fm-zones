@@ -107,5 +107,4 @@ class Test_Fieldmanager_Zone_Field extends WP_UnitTestCase {
 		$items = $items['data'];
 		$this->assertSame( $this->data_posts[2]->ID, $items[0]['id'] );
 	}
-
 }
