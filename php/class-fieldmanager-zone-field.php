@@ -41,7 +41,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 	public $accept_from_other_zones = false;
 
 	/**
-	 * Legacy Ajax arguments array
+	 * Additional Ajax arguments
 	 *
 	 * @var array
 	 */
@@ -167,6 +167,7 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 		$this->attributes['data-nonce'] = wp_create_nonce( 'fm_search_nonce' );
 		$this->attributes['data-action'] = $this->datasource->get_ajax_action( $this->name );
 		$this->attributes['data-use-datasource'] = 1;
+		$this->attributes['data-args'] = wp_json_encode( $this->ajax_args );
 
 		return parent::form_element( $value );
 	}
