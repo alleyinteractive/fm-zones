@@ -166,4 +166,20 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 
 		return $excluded;
 	}
+
+	/**
+	 * Get an action to register by hashing (non cryptographically for speed)
+	 * the options that make this datasource unique.
+	 *
+	 * @return string
+	 */
+	public function get_ajax_action() {
+		if ( ! empty( $this->ajax_action ) ) {
+			return $this->ajax_action;
+		}
+
+		$unique_key = wp_json_encode( $this->query_args );
+		$unique_key .= (string) $this->query_callback;
+		return 'fm_datasource_zone_field' . crc32( $unique_key );
+	}
 }
