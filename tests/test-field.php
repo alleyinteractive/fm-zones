@@ -107,4 +107,21 @@ class Test_Fieldmanager_Zone_Field extends WP_UnitTestCase {
 		$items = $items['data'];
 		$this->assertSame( $this->data_posts[2]->ID, $items[0]['id'] );
 	}
+
+	public function test_ajax_args() {
+		$ajax_args = array(
+			'foo' => 'bar',
+		);
+
+		$fm = new Fieldmanager_Zone_Field( array(
+			'ajax_args' => $ajax_args,
+		) );
+
+		ob_start();
+		$fm->add_meta_box( 'Test Zone Field', 'post' )->render_meta_box( $this->post, array() );
+		$html = ob_get_clean();
+
+		$expected = esc_attr( wp_json_encode( $ajax_args ) );
+		$this->assertRegExp( '/data\-args=[\'"]' . preg_quote( $expected ) . '[\'"]/', $html );
+	}
 }
