@@ -125,7 +125,7 @@ class Fieldmanager_Datasource_Zone_Field extends Fieldmanager_Datasource_Post {
 		}
 
 		if ( 'json' === $format ) {
-			return wp_json_encode( $return );
+			return wp_json_encode( $return, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT );
 		} else {
 			return $return;
 		}
