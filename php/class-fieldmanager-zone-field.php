@@ -388,6 +388,6 @@ class Fieldmanager_Zone_Field extends Fieldmanager_Field {
 			}
 		}
 
-		return $this->datasource->presave_alter_values( $this, $values, $current_values );
+		return apply_filters( 'fm_presave_alter_values', $this->datasource->presave_alter_values( $this, $values, $current_values ), $this, $current_values );
 	}
 }
