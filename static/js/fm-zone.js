@@ -241,7 +241,7 @@
 			$( this ).fm_zonify( posts );
 		}
 
-		$( '.fm-zone-posts-wrapper:visible' ).each( zonifier );
+		$( '.fm-zone-posts-wrapper' ).each( zonifier );
 
 		$( document ).on( 'fm_collapsible_toggle fm_added_element fm_displayif_toggle fm_activate_tab', function() {
 			$( '.fm-zone-posts-wrapper:visible:not(.zonified)' ).each( zonifier );
