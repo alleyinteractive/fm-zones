@@ -222,8 +222,33 @@
 		} );
 	};
 
+	/**
+	 * A wrapper for DOM ready handlers in the global wp object and jQuery,
+	 * with a shim fallback that mimics the behavior of wp.domReady.
+	 * Ensures that metaboxes have loaded before initializing functionality.
+	 * @param {function} callback - The callback function to execute when the DOM is ready.
+	 */
+	$.fn.fm_zone_load_module = function( callback ) {
+		if ( 'object' === typeof wp && 'function' === typeof wp.domReady ) {
+			wp.domReady( callback );
+		} else if ( jQuery ) {
+			jQuery( document ).ready( callback );
+		} else {
+			// Shim wp.domReady.
+			if (
+				document.readyState === 'complete' || // DOMContentLoaded + Images/Styles/etc loaded, so we call directly.
+				document.readyState === 'interactive' // DOMContentLoaded fires at this point, so we call directly.
+			) {
+				callback();
+				return;
+			}
 
-	$( document ).ready( function() {
+			// DOMContentLoaded has not fired yet, delay callback until then.
+			document.addEventListener( 'DOMContentLoaded', callback );
+		}
+	}
+
+	$( this ).fm_zone_load_module( function() {
 		var zonifier = function() {
 			if ( $( this ).closest( '.fmjs-proto' ).length ) {
 				return;
@@ -241,7 +266,7 @@
 			$( this ).fm_zonify( posts );
 		}
 
-		$( '.fm-zone-posts-wrapper' ).each( zonifier );
+		$( '.fm-zone-posts-wrapper:visible' ).each( zonifier );
 
 		$( document ).on( 'fm_collapsible_toggle fm_added_element fm_displayif_toggle fm_activate_tab', function() {
 			$( '.fm-zone-posts-wrapper:visible:not(.zonified)' ).each( zonifier );
