@@ -1,5 +1,6 @@
 {
   "name": "alleyinteractive/fm-zones",
+  "type": "wordpress-plugin",
   "authors": [
     {
       "name": "Matthew Boynes",
