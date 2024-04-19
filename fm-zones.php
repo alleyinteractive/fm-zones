@@ -4,7 +4,7 @@
 	Plugin Name: Fieldmanager Zones
 	Plugin URI: https://github.com/alleyinteractive/fm-zones
 	Description: Fieldmanager field which acts as a Zoninator clone.
-	Version: 0.1.12
+	Version: 0.2.0
 	Author: Alley Interactive
 	Author URI: http://www.alleyinteractive.com/
 */
